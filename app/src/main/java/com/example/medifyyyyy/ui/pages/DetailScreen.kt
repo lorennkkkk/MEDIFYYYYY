@@ -46,7 +46,7 @@ fun DetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Detail", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
+            TopAppBar(title = { Text("Detail Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
                 }

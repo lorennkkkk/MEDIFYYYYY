@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.medifyyyyy.ui.common.UiResult
 import com.example.medifyyyyy.ui.pages.AddBankObatScreen
+import com.example.medifyyyyy.ui.pages.BerandaFitur
 import com.example.medifyyyyy.ui.pages.DetailScreen
 import com.example.medifyyyyy.ui.pages.HomeScreen
 import com.example.medifyyyyy.ui.pages.LoginScreen
@@ -49,7 +50,7 @@ fun AppNavHost(
         else {
             // ...paksa navigasi ke Home
             Log.d("AppNavHost", "DEBUG: User authenticated → Home")
-            nav.navigate(Screen.Home.route) {
+            nav.navigate(Screen.Beranda.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
@@ -77,6 +78,11 @@ fun AppNavHost(
 //                    popUpTo(Screen.Login.route) { inclusive = true }
 //                }
 //            })
+        }
+        composable(Screen.Beranda.route){
+            BerandaFitur(
+                onNavigateBankObat = { nav.navigate(Screen.Home.route) }
+            )
         }
         composable(Screen.Home.route) {
             HomeScreen(
