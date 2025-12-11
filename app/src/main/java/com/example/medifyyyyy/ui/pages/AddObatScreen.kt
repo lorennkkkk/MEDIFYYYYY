@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -48,7 +50,8 @@ import java.io.File
 @Composable
 fun AddBankObatScreen(
     viewModel: BankObatViewModel = viewModel(),
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    onBack: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
@@ -105,7 +108,16 @@ fun AddBankObatScreen(
         }
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Tambah Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Tambah Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
+                }
+            })
+        }
+    )
+    { padding ->
         Column(
             Modifier
                 .padding(padding)

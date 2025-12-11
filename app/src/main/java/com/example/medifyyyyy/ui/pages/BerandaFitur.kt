@@ -9,23 +9,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BerandaFitur(
-    onNavigateBankObat: () -> Unit
+    onNavigateBankObat: () -> Unit,
+    onLogout: () -> Unit
 ) {
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Beranda Fitur",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                title = { Text("Beranda Fitur", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                actions = { IconButton(onClick = { onLogout() }) {
+                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.secondary)
+                    }
                 }
             )
         }

@@ -81,13 +81,7 @@ fun AppNavHost(
         }
         composable(Screen.Beranda.route){
             BerandaFitur(
-                onNavigateBankObat = { nav.navigate(Screen.Home.route) }
-            )
-        }
-        composable(Screen.Home.route) {
-            HomeScreen(
-                onAdd = { nav.navigate(Screen.Add.route) },
-                onDetail = { id -> nav.navigate(Screen.Detail.build(id)) },
+                onNavigateBankObat = { nav.navigate(Screen.Home.route) },
                 onLogout = {
 
                     authViewModel.logout()
@@ -97,8 +91,15 @@ fun AppNavHost(
                 }
             )
         }
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onAdd = { nav.navigate(Screen.Add.route) },
+                onDetail = { id -> nav.navigate(Screen.Detail.build(id)) },
+                onBack = { nav.popBackStack() }
+            )
+        }
         composable(Screen.Add.route) {
-            AddBankObatScreen(onDone = { nav.popBackStack() })
+            AddBankObatScreen(onDone = { nav.popBackStack() }, onBack = { nav.popBackStack() })
         }
         composable(Screen.Detail.route) { backStack ->
             val id = backStack.arguments?.getString("id") ?: ""

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -25,7 +26,7 @@ fun HomeScreen(
     BankObatViewModel: BankObatViewModel = viewModel(),
     onAdd: () -> Unit,
     onDetail: (String) -> Unit,
-    onLogout: () -> Unit
+    onBack: () -> Unit
 ) {
     val BankObatState by BankObatViewModel.BankObat.collectAsState()
 
@@ -36,15 +37,11 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Bank Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
-                actions = {
-                    IconButton(onClick = {
-                        onLogout()
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.secondary)
+                title = { Text("Bank Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
                     }
-                }
-            )
+                })
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAdd, containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
