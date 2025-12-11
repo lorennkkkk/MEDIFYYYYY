@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -104,20 +105,20 @@ fun AddBankObatScreen(
         }
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Add Bank Obat") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text("Tambah Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }) }) { padding ->
         Column(
             Modifier
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(title, { title = it }, label = { Text("Judul") })
-            OutlinedTextField(desc, { desc = it }, label = { Text("Deskripsi") })
+            OutlinedTextField(title, { title = it }, label = { Text("Judul") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(desc, { desc = it }, label = { Text("Deskripsi") }, modifier = Modifier.fillMaxWidth())
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
-                    Icon(Icons.Default.Photo, contentDescription = "Galeri")
+                    Icon(Icons.Default.Photo, contentDescription = "Galeri", tint = MaterialTheme.colorScheme.secondary)
                     Spacer(Modifier.width(8.dp))
-                    Text("Galeri")
+                    Text("Galeri", color = MaterialTheme.colorScheme.primary)
                 }
 //                OutlinedButton(onClick = { cameraLauncher.launch(null) }) {
 //                    Icon(Icons.Default.CameraAlt, contentDescription = "Kamera")
@@ -131,6 +132,10 @@ fun AddBankObatScreen(
                         .fillMaxWidth()
                         .height(220.dp))
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
             Button(
                 onClick = { viewModel.addObat(title, desc.ifBlank { null }, imageFile) },
                 enabled = title.isNotBlank() && addingState !is UiResult.Loading
@@ -139,6 +144,7 @@ fun AddBankObatScreen(
             }
             if (addingState is UiResult.Error) {
                 Text((addingState as UiResult.Error).message, color = MaterialTheme.colorScheme.error)
+            }
             }
         }
     }

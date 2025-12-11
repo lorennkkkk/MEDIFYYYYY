@@ -7,17 +7,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Logout
 
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medifyyyyy.domain.model.BankObat
 import com.example.medifyyyyy.ui.common.UiResult
-import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 import com.example.medifyyyyy.ui.viewmodel.BankObatViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,12 +36,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Bank Obat") },
+                title = { Text("Bank Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = {
                         onLogout()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.secondary)
                     }
                 }
             )
@@ -78,14 +77,16 @@ private fun BankObatList(
 ) {
     LazyColumn(modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(list) { BankObat ->
-            ElevatedCard(onClick = { onDetail(BankObat.id) }) {
+            Card(onClick = { onDetail(BankObat.id) }, colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+            )) {
                 Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(Modifier.weight(1f)) {
-                        Text(BankObat.title, style = MaterialTheme.typography.titleMedium)
+                        Text(BankObat.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
                         BankObat.description?.let { Text(it, maxLines = 2) }
                     }
                     IconButton(onClick = { onDelete(BankObat.id) }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }

@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.medifyyyyy.domain.model.BankObat
@@ -45,9 +46,9 @@ fun DetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Detail") }, navigationIcon = {
+            TopAppBar(title = { Text("Detail", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
                 }
             })
         }
@@ -61,9 +62,13 @@ fun DetailScreen(
                 Modifier
                     .padding(padding)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(BankObat!!.title, style = MaterialTheme.typography.headlineSmall)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                Text(BankObat!!.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Medium)}
                 Text(BankObat!!.description ?: "-", style = MaterialTheme.typography.bodyLarge)
                 BankObat!!.imageUrl?.let {
                     Image(
@@ -75,7 +80,7 @@ fun DetailScreen(
                 val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
                     .withZone(ZoneId.systemDefault())
                 Text("Created: ${formatter.format(BankObat!!.createdAt)}",
-                    style = MaterialTheme.typography.bodySmall)
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
             }
         }
     }
