@@ -13,11 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.medifyyyyy.ui.common.UiResult
 import com.example.medifyyyyy.ui.pages.AddBankObatScreen
+import com.example.medifyyyyy.ui.pages.AddVaksinScreen
 import com.example.medifyyyyy.ui.pages.BerandaFitur
 import com.example.medifyyyyy.ui.pages.DetailScreen
 import com.example.medifyyyyy.ui.pages.HomeScreen
 import com.example.medifyyyyy.ui.pages.LoginScreen
 import com.example.medifyyyyy.ui.pages.RegisterScreen
+import com.example.medifyyyyy.ui.pages.VaksinScreen
 import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 
 
@@ -105,5 +107,24 @@ fun AppNavHost(
             val id = backStack.arguments?.getString("id") ?: ""
             DetailScreen(id = id, onBack = { nav.popBackStack() })
         }
+        // --- FITUR VAKSIN ROUTES BARU ---
+        composable(Screen.VaksinList.route) {
+            // Halaman Daftar Sertifikat Vaksin
+            VaksinScreen(
+                navController = nav,
+                // Navigasi ke halaman tambah/upload
+                onAddVaksin = { nav.navigate(Screen.AddVaksin.route) }
+            )
+        }
+
+        composable(Screen.AddVaksin.route) {
+            // Halaman Tambah/Upload Sertifikat Vaksin
+            AddVaksinScreen(
+                navController = nav,
+                // onDone otomatis popBackStack ke VaksinList, atau gunakan onBack
+                onBack = { nav.popBackStack() }
+            )
+        }
+
     }
 }
