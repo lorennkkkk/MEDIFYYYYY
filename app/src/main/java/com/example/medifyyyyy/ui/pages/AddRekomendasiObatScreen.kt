@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -37,21 +35,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medifyyyyy.ui.common.UiResult
-import com.example.medifyyyyy.ui.viewmodel.BankObatViewModel
+import com.example.medifyyyyy.ui.viewmodel.RekomendasiObatViewModel
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddBankObatScreen(
-    viewModel: BankObatViewModel = viewModel(),
-    onDone: () -> Unit,
-    onBack: () -> Unit
+fun AddRekomendasiObatScreen(
+    viewModel: RekomendasiObatViewModel = viewModel(),
+    onDone: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
@@ -108,29 +104,20 @@ fun AddBankObatScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Tambah Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
-                }
-            })
-        }
-    )
-    { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text("Add Rekomendasi Obat") }) }) { padding ->
         Column(
             Modifier
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(title, { title = it }, label = { Text("Judul") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(desc, { desc = it }, label = { Text("Deskripsi") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(title, { title = it }, label = { Text("Judul") })
+            OutlinedTextField(desc, { desc = it }, label = { Text("Deskripsi") })
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
-                    Icon(Icons.Default.Photo, contentDescription = "Galeri", tint = MaterialTheme.colorScheme.secondary)
+                    Icon(Icons.Default.Photo, contentDescription = "Galeri")
                     Spacer(Modifier.width(8.dp))
-                    Text("Galeri", color = MaterialTheme.colorScheme.primary)
+                    Text("Galeri")
                 }
 //                OutlinedButton(onClick = { cameraLauncher.launch(null) }) {
 //                    Icon(Icons.Default.CameraAlt, contentDescription = "Kamera")
@@ -144,10 +131,6 @@ fun AddBankObatScreen(
                         .fillMaxWidth()
                         .height(220.dp))
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ){
             Button(
                 onClick = { viewModel.addObat(title, desc.ifBlank { null }, imageFile) },
                 enabled = title.isNotBlank() && addingState !is UiResult.Loading
@@ -156,7 +139,6 @@ fun AddBankObatScreen(
             }
             if (addingState is UiResult.Error) {
                 Text((addingState as UiResult.Error).message, color = MaterialTheme.colorScheme.error)
-            }
             }
         }
     }

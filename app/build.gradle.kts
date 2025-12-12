@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.medify"
+    namespace = "com.example.medifyyyyy"
     compileSdk {
         version = release(36)
     }

@@ -1,6 +1,5 @@
 package com.example.medifyyyyy.ui.pages
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -18,11 +17,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.medifyyyyy.domain.model.BankObat
-import com.example.medifyyyyy.ui.viewmodel.BankObatViewModel
+import com.example.medifyyyyy.domain.model.RekomendasiObat
+import com.example.medifyyyyy.ui.viewmodel.RekomendasiObatViewModel
 
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -30,30 +28,30 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(
+fun DetailScreenRekomendasiObat(
     id: String,
-    viewModel: BankObatViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: RekomendasiObatViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onBack: () -> Unit
 ) {
-    var BankObat by remember { mutableStateOf<BankObat?>(null) }
+    var RekomendasiObat by remember { mutableStateOf<RekomendasiObat?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(id) {
         scope.launch {
-            BankObat = viewModel.getObat(id)
+            RekomendasiObat = viewModel.getObat(id)
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Detail Obat Pribadi", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }, navigationIcon = {
+            TopAppBar(title = { Text("Detail") }, navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.secondary)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             })
         }
     ) { padding ->
-        if (BankObat == null) {
+        if (RekomendasiObat == null) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
@@ -62,25 +60,21 @@ fun DetailScreen(
                 Modifier
                     .padding(padding)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                Text(BankObat!!.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Medium)}
-                Text(BankObat!!.description ?: "-", style = MaterialTheme.typography.bodyLarge)
-                BankObat!!.imageUrl?.let {
+                Text(RekomendasiObat!!.title, style = MaterialTheme.typography.headlineSmall)
+                Text(RekomendasiObat!!.description ?: "-", style = MaterialTheme.typography.bodyLarge)
+                RekomendasiObat!!.imageUrl?.let {
                     Image(
                         painter = rememberAsyncImagePainter(it),
-                        contentDescription = "Bank Obat Image",
+                        contentDescription = "Rekomendasi Obat Image",
                         modifier = Modifier.fillMaxWidth().height(240.dp)
                     )
                 }
                 val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
                     .withZone(ZoneId.systemDefault())
-                Text("Created: ${formatter.format(BankObat!!.createdAt)}",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                Text("Created: ${formatter.format(RekomendasiObat!!.createdAt)}",
+                    style = MaterialTheme.typography.bodySmall)
             }
         }
     }
