@@ -86,6 +86,7 @@ fun AppNavHost(
         composable(Screen.Beranda.route){
             BerandaFitur(
                 onNavigateBankObat = { nav.navigate(Screen.Home.route) },
+                onNavigateFoodAllergy = { nav.navigate(Screen.AllergyList.route) },
                 onLogout = {
 
                     authViewModel.logout()
