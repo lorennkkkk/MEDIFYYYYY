@@ -12,12 +12,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.medifyyyyy.ui.common.UiResult
+import com.example.medifyyyyy.ui.pages.AddAllergyScreen
 import com.example.medifyyyyy.ui.pages.AddBankObatScreen
+import com.example.medifyyyyy.ui.pages.AllergyListScreen
 import com.example.medifyyyyy.ui.pages.BerandaFitur
+import com.example.medifyyyyy.ui.pages.DetailAllergyScreen
 import com.example.medifyyyyy.ui.pages.DetailScreen
 import com.example.medifyyyyy.ui.pages.HomeScreen
 import com.example.medifyyyyy.ui.pages.LoginScreen
 import com.example.medifyyyyy.ui.pages.RegisterScreen
+import com.example.medifyyyyy.ui.viewmodel.AllergyFoodViewModel
 import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 
 
@@ -104,6 +108,49 @@ fun AppNavHost(
         composable(Screen.Detail.route) { backStack ->
             val id = backStack.arguments?.getString("id") ?: ""
             DetailScreen(id = id, onBack = { nav.popBackStack() })
+        }
+
+        //Nava
+        composable(Screen.AllergyList.route) {
+            // Ganti tipe datanya jadi AllergyFoodViewModel
+            val allergyViewModel: AllergyFoodViewModel = viewModel()
+
+            AllergyListScreen(
+                viewModel = allergyViewModel,
+                onNavigateToAdd = {
+                    nav.navigate(Screen.AddAllergy.route)
+                },
+                onNavigateToDetail = { id ->
+                    nav.navigate(Screen.DetailAllergy.build(id))
+                }
+            )
+        }
+
+        // ... kode sebelumnya ...
+
+        composable(route = Screen.AddAllergy.route) {
+            // TAMBAHKAN BARIS INI (Membuat variabel baru khusus untuk halaman ini)
+            val allergyViewModel: AllergyFoodViewModel = viewModel()
+
+            AddAllergyScreen(
+                viewModel = allergyViewModel, // Sekarang ini tidak akan merah lagi
+                onBack = {
+                    nav.popBackStack()
+                }
+            )
+        }
+
+        composable(route = Screen.DetailAllergy.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+
+            // TAMBAHKAN JUGA DI SINI
+            val allergyViewModel: AllergyFoodViewModel = viewModel()
+
+            DetailAllergyScreen(
+                allergyId = id,
+                viewModel = allergyViewModel, // Ini juga akan sembuh
+                onBack = { nav.popBackStack() }
+            )
         }
     }
 }
