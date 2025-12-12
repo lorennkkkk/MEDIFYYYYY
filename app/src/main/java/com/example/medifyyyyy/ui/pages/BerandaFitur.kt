@@ -11,12 +11,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Vaccines
+import androidx.compose.material.icons.filled.Warning
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
+    onNavigateFoodAllergy: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -29,7 +35,58 @@ fun BerandaFitur(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Surface(
+                tonalElevation = 3.dp,
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { /* TODO: Navigate Beranda */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Beranda",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )}
+                    IconButton(onClick = { /* TODO: Navigate Sertif Vaksin */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Vaccines,
+                        contentDescription = "Vaksin",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )}
+                    IconButton(onClick = { /* TODO: Navigate Log Alergi */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Alergi",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )}
+                    IconButton(onClick = { /* TODO: Navigate Todo */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Checklist,
+                        contentDescription = "To-Do",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )}
+                    IconButton(onClick = { /* TODO: Navigate Profil */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profil",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )}
+                }
+            }
         }
+
     ) { padding ->
 
         Column(
@@ -44,6 +101,10 @@ fun BerandaFitur(
             FeatureCard(
                 title = "Bank Obat Pribadi",
                 onClick = onNavigateBankObat
+            )
+            FeatureCard(
+                title = "Daftar Alergi Makanan",
+                onClick = onNavigateFoodAllergy
             )
         }
     }
