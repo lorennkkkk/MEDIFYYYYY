@@ -7,6 +7,8 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.user.UserSession
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.serializer.KotlinXSerializer
+import kotlinx.serialization.json.Json
 
 object SupabaseHolder {
     // Ganti dengan URL & anon/public key Supabase Anda
@@ -21,6 +23,12 @@ object SupabaseHolder {
         install(Auth)
         install(Postgrest.Companion)
         install(Storage.Companion)
+
+        defaultSerializer = KotlinXSerializer(Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        })
+
     }
 
     fun session(): UserSession? = client.auth.currentSessionOrNull()

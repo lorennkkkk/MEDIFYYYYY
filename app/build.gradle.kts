@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -72,6 +71,9 @@ dependencies {
     implementation(libs.supabase.storage)
     implementation(libs.supabase.postgrest)
 
+    // serialization kotlinx
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
     //ktor
     implementation(libs.ktor.client.cio)
 
@@ -83,6 +85,12 @@ dependencies {
 
     //viewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    //icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+
+    //statusBarColor
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation("androidx.compose.material:material-icons-extended")
 }
