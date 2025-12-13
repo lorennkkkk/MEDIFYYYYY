@@ -16,6 +16,7 @@ sealed class Screen(val route: String) {
     object DetailSertif : Screen("detail_sertif/{id}") {
         fun build(id: String) = "detail_sertif/$id"
     }
+    // Nava
     object AllergyList : Screen("allergy_list")
     object AddAllergy : Screen("add_allergy")
     object DetailAllergy : Screen("detail_allergy/{id}") {
