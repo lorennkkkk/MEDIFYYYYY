@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.Warning
 @Composable
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
+    onNavigateFoodAllergy: () -> Unit,
+    onNavigateSertifVaksin: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -54,7 +56,7 @@ fun BerandaFitur(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Sertif Vaksin */ }) {
+                    IconButton(onClick = { onNavigateSertifVaksin() } ) {
                     Icon(
                         imageVector = Icons.Default.Vaccines,
                         contentDescription = "Vaksin",
@@ -103,7 +105,7 @@ fun BerandaFitur(
             )
             FeatureCard(
                 title = "Daftar Alergi Makanan",
-                onClick = onNavigateBankObat // Nanti diubah ke punya nava
+                onClick = onNavigateFoodAllergy
             )
         }
     }
