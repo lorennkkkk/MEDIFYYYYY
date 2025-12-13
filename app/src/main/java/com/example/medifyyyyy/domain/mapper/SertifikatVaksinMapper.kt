@@ -15,7 +15,7 @@ object SertifikatVaksinMapper {
      * @param resolveImageUrl Fungsi untuk mendapatkan URL publik dari path storage.
      */
     fun map(dto: SertifikatVaksinDto, resolveImageUrl: (String?) -> String?): SertifikatVaksin {
-        val imageUrl = resolveImageUrl(dto.image_path)
+        val imageUrl = resolveImageUrl(dto.image_url)
         val tanggal: Date = try {
             // Asumsi format tanggal di Supabase cocok dengan SimpleDateFormat
             supabaseDateFormat.parse(dto.tanggal_vaksinasi) ?: Date()

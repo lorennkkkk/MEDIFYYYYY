@@ -19,7 +19,7 @@ class SertifikatVaksinRepository {
     private val postgrest get() = SupabaseHolder.client.postgrest
 
     // Pastikan nama bucket ini 100% cocok dengan nama bucket di Supabase Storage Anda!
-    private val storage get() = SupabaseHolder.client.storage.from("vaksin-certificates")
+    private val storage get() = SupabaseHolder.client.storage.from("sertifikat-images")
 
     private fun resolveImageUrl(path: String?): String? {
         if (path == null) return null
@@ -79,7 +79,7 @@ class SertifikatVaksinRepository {
                     "dosis" to dosis,
                     "tanggal_vaksinasi" to tanggalVaksinasi,
                     "tempat_vaksinasi" to tempatVaksinasi,
-                    "image_path" to imagePath
+                    "image_url" to imagePath
                 )
             ) { select() }
 

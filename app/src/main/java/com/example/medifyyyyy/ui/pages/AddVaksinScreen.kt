@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.util.Log
+import android.webkit.MimeTypeMap
 
 @Composable
 fun AddVaksinScreen(
@@ -52,11 +53,11 @@ fun AddVaksinScreen(
 
     // LAUNCHER UNTUK MEMILIH GAMBAR
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            imageUri = uri
-        }
-    )
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+        uri ?: return@rememberLauncherForActivityResult
+    }
 
     // PERBAIKAN: Efek samping untuk menangani navigasi dan error
     LaunchedEffect(addState) {
@@ -100,7 +101,7 @@ fun AddVaksinScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            UploadImageSection(imageUri != null) {
+            UploadImageSection(imageUri) {
                 if (!isLoading) {
                     imagePickerLauncher.launch("image/*") // Membuka galeri
                 }
@@ -167,18 +168,20 @@ fun AddVaksinScreen(
 
 // FUNGSI UTILITY KRUSIAL: Mengkonversi URI Content Provider menjadi File sementara
 fun uriToFile(context: android.content.Context, uri: Uri): File? {
-    val contentResolver = context.contentResolver
-    val extension = contentResolver.getType(uri)?.substringAfterLast('/') ?: "jpg"
+    val contentResolver = context.contentResolver.openInputStream(uri) ?: return null
+    val mime = context.contentResolver.getType(uri) ?: "image/*"
+    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "img"
     val tempFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.$extension")
 
     return try {
-        contentResolver.openInputStream(uri)?.use { inputStream ->
+        contentResolver.use { inputStream ->
             tempFile.outputStream().use { outputStream ->
                 inputStream.copyTo(outputStream)
             }
         }
         if (tempFile.exists() && tempFile.length() > 0) {
             tempFile
+
         } else {
             null
         }
@@ -207,17 +210,19 @@ fun AddVaksinTopBar(navController: NavController) {
 }
 
 @Composable
-fun UploadImageSection(isUploaded: Boolean, onUploadClicked: () -> Unit) {
+fun UploadImageSection(imageUri: Uri?, onUploadClicked: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isUploaded) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.2f))
+            .background(if (imageUri!=null) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.2f))
             .padding(20.dp)
             .clickable(onClick = onUploadClicked)
     ) {
-        if (!isUploaded) {
+        val isUploaded = imageUri == null
+
+        if (isUploaded) {
             Icon(
                 Icons.Filled.UploadFile,
                 contentDescription = "Upload Sertifikat",

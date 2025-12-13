@@ -3,7 +3,7 @@ package com.example.medifyyyyy.ui.pages
 import java.util.Date
 
 data class SertifikatVaksin(
-    val id: Int,
+    val id: String,
     val namaLengkap: String,
     val jenisVaksin: String,
     val dosis: String,
