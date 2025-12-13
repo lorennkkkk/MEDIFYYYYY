@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Warning
 @Composable
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
+    onNavigateFoodAllergy: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -103,7 +104,7 @@ fun BerandaFitur(
             )
             FeatureCard(
                 title = "Daftar Alergi Makanan",
-                onClick = onNavigateBankObat // Nanti diubah ke punya nava
+                onClick = onNavigateFoodAllergy
             )
         }
     }

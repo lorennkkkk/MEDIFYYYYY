@@ -9,4 +9,9 @@ sealed class Screen(val route: String) {
     object Detail : Screen("detail/{id}") {
         fun build(id: String) = "detail/$id"
     }
+    object AllergyList : Screen("allergy_list")
+    object AddAllergy : Screen("add_allergy")
+    object DetailAllergy : Screen("detail_allergy/{id}") {
+        fun build(id: String) = "detail_allergy/$id"
+    }
 }
