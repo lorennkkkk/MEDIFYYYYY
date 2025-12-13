@@ -53,8 +53,9 @@ class VaksinViewModel(
         viewModelScope.launch {
             _addSertifikatState.value = UIResult.Loading
             try {
-                // Konversi Date ke String ISO 8601 untuk Supabase
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                // PERBAIKAN: Konversi Date ke String ISO 8601 untuk Supabase.
+                // Format "yyyy-MM-dd'T'HH:mm:ss.SSSZ" lebih akurat untuk Supabase Timestamp.
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault())
                 val tanggalVaksinasiString = dateFormat.format(tanggal)
 
                 val newSertifikat = repository.addSertifikat(
@@ -72,6 +73,7 @@ class VaksinViewModel(
                 fetchSertifikat()
 
             } catch (e: Exception) {
+                // Error akan dikirim ke AddVaksinScreen untuk di-log dan ditangani
                 _addSertifikatState.value = UIResult.Error(e)
             }
         }
