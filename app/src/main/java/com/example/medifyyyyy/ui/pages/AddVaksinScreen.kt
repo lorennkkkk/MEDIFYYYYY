@@ -1,5 +1,8 @@
 package com.example.medifyyyyy.ui.pages
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,21 +10,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,26 +35,40 @@ fun AddVaksinScreen(
     viewModel: VaksinViewModel = viewModel(),
     onBack: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     // State Formulir
     var namaLengkap by remember { mutableStateOf("Budi Hartono") }
     var jenisVaksin by remember { mutableStateOf("AstraZeneca") }
     var dosis by remember { mutableStateOf("Booster") }
-    var tanggalVaksinasi by remember { mutableStateOf<Date?>(Date()) } // Default ke hari ini
+    var tanggalVaksinasi by remember { mutableStateOf<Date?>(Date()) }
     var tempatVaksinasi by remember { mutableStateOf("Klinik Sehat") }
-    var imageFile by remember { mutableStateOf<File?>(null) } // File yang akan di-upload
+
+    // UBAH: Sekarang menyimpan URI, bukan File
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    // State untuk representasi File yang akan di-upload (akan diubah saat simpan)
+    var imageFile by remember { mutableStateOf<File?>(null) }
 
     val addState by viewModel.addSertifikatState.collectAsState()
+
+    // 1. LAUNCHER UNTUK MEMILIH GAMBAR
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            imageUri = uri // Simpan URI yang dipilih
+        }
+    )
 
     // Efek samping untuk menangani navigasi setelah simpan
     LaunchedEffect(addState) {
         when (addState) {
             is UIResult.Success -> {
-                viewModel.resetAddSertifikatState() // Reset state
-                navController.popBackStack() // Kembali ke daftar
+                viewModel.resetAddSertifikatState()
+                navController.popBackStack()
             }
             is UIResult.Error -> {
-                // Tampilkan Snackbar/Toast jika ada error
-                // Misalnya: Snackbar("Gagal menyimpan: ${(addState as UIResult.Error).exception.message}")
+                // Tampilkan pesan error di sini
+                // Contoh: Log.e("AddVaksin", "Gagal: ${e.message}")
             }
             else -> {}
         }
@@ -77,14 +87,13 @@ fun AddVaksinScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Ketika tombol di UploadImageSection ditekan, update state imageFile
-            UploadImageSection(imageFile != null) {
-                // Simulasi file yang dipilih/diambil
-                imageFile = File("path/to/temp/certificate_${System.currentTimeMillis()}.jpg")
+
+            // 2. PANGGIL LAUNCHER KETIKA DIKLIK
+            UploadImageSection(imageUri != null) {
+                imagePickerLauncher.launch("image/*") // Membuka galeri
             }
             Spacer(Modifier.height(16.dp))
 
-            // ... Formulir Input (Sama seperti sebelumnya, tambahkan `enabled = !isLoading`)
             OutlinedTextField(value = namaLengkap, onValueChange = { namaLengkap = it }, label = { Text("Nama Lengkap") }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading)
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(value = jenisVaksin, onValueChange = { jenisVaksin = it }, label = { Text("Jenis Vaksin") }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading)
@@ -98,7 +107,6 @@ fun AddVaksinScreen(
                 label = { Text("Tanggal Vaksinasi") },
                 trailingIcon = {
                     Icon(Icons.Filled.CalendarToday, contentDescription = "Pilih Tanggal",
-                        // Simulasi Date Picker, di real project gunakan proper DatePickerDialog
                         Modifier.clickable { tanggalVaksinasi = Date() }
                     )
                 },
@@ -112,6 +120,11 @@ fun AddVaksinScreen(
 
             Button(
                 onClick = {
+                    // 3. LOGIKA SEBELUM SUBMIT: Konversi URI menjadi File nyata untuk Repositori
+                    if (imageUri != null) {
+                        imageFile = uriToFile(context, imageUri!!)
+                    }
+
                     if (jenisVaksin.isNotBlank() && dosis.isNotBlank() && tanggalVaksinasi != null && tempatVaksinasi.isNotBlank() && imageFile != null) {
                         viewModel.addSertifikat(
                             namaLengkap = namaLengkap,
@@ -124,7 +137,8 @@ fun AddVaksinScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                enabled = !isLoading && imageFile != null, // Hanya enable jika tidak loading dan file sudah dipilih
+                // KRUSIAL: Sekarang bergantung pada imageUri (yang didapat dari galeri)
+                enabled = !isLoading && imageUri != null,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 if (isLoading) {
@@ -137,6 +151,32 @@ fun AddVaksinScreen(
         }
     }
 }
+
+// FUNGSI UTILITY: Mengkonversi URI menjadi File (Wajib untuk Supabase upload)
+// Fungsi ini harus didefinisikan di suatu tempat yang bisa diakses, jika tidak, taruh di file ini dulu.
+fun uriToFile(context: android.content.Context, uri: Uri): File? {
+    // Implementasi ini SANGAT kompleks dan bervariasi. Untuk tujuan demonstrasi/debugging:
+    // Paling umum: Salin isi URI ke file sementara (temp file)
+
+    // **ANDA HARUS MENGUBAH INI dengan implementasi yang BENAR**
+    // (yang menangani ContentResolver dan I/O stream) di proyek nyata Anda.
+
+    // Sebagai *placeholder* sederhana agar kompilasi berhasil:
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val tempFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.jpg")
+        tempFile.outputStream().use { output ->
+            inputStream?.copyTo(output)
+        }
+        inputStream?.close()
+        tempFile
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+// --- KOMPONEN PENDUKUNG (TETAP SAMA) ---
 
 @Composable
 fun AddVaksinTopBar(x0: NavController) {
@@ -159,7 +199,6 @@ fun AddVaksinTopBar(x0: NavController) {
     }
 }
 
-// **UploadImageSection (Pembaruan untuk menggunakan Boolean)**
 @Composable
 fun UploadImageSection(isUploaded: Boolean, onUploadClicked: () -> Unit) {
     Column(
@@ -167,7 +206,7 @@ fun UploadImageSection(isUploaded: Boolean, onUploadClicked: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isUploaded) MaterialTheme.colorScheme.secondary else Color.LightGray.copy(alpha = 0.2f))
+            .background(if (isUploaded) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.2f))
             .padding(20.dp)
             .clickable(onClick = onUploadClicked)
     ) {
@@ -183,13 +222,13 @@ fun UploadImageSection(isUploaded: Boolean, onUploadClicked: () -> Unit) {
             Text("Tap untuk unggah file JPG/PNG", color = Color.Gray, fontSize = 12.sp)
         } else {
             Icon(
-                Icons.Default.AutoAwesome, // Ganti dengan icon centang
+                Icons.Default.AutoAwesome,
                 contentDescription = "Sertifikat Terunggah",
                 tint = Color(0xFF4CAF50),
                 modifier = Modifier.size(48.dp)
             )
             Spacer(Modifier.height(8.dp))
-            Text("Sertifikat berhasil diunggah!", color = Color(0xFF4CAF50), fontWeight = FontWeight.SemiBold)
+            Text("Sertifikat berhasil dipilih!", color = Color(0xFF4CAF50), fontWeight = FontWeight.SemiBold)
             Text("Tap untuk ganti foto", color = Color.Gray, fontSize = 12.sp)
         }
     }
