@@ -29,12 +29,12 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
-        containerColor = BackgroundLight, // ✅ Ganti SoftIce
+        containerColor = BackgroundLight,
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(TealPrimary) // ✅ Ganti TealMedical
+                    .background(TealPrimary)
                     .padding(20.dp)
             ) {
                 Row(

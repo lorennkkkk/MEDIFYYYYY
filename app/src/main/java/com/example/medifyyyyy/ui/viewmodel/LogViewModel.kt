@@ -1,5 +1,6 @@
 package com.example.medifyyyyy.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medifyyyyy.data.repository.LogRepository
@@ -33,6 +34,21 @@ class LogViewModel : ViewModel() {
         viewModelScope.launch {
             repository.getDrugLogs().collect {
                 _drugLogs.value = it
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun addDrugLog(log: DrugLog, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                repository.addDrugLog(log)
+                fetchData() // Refresh data setelah berhasil menambah
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("LogViewModel", "Gagal menyimpan log: ${e.message}")
+            } finally {
                 _isLoading.value = false
             }
         }
