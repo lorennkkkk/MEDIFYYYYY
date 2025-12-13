@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Warning
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
     onNavigateFoodAllergy: () -> Unit,
+    onNavigateSertifVaksin: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -55,7 +56,7 @@ fun BerandaFitur(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Sertif Vaksin */ }) {
+                    IconButton(onClick = { onNavigateSertifVaksin() } ) {
                     Icon(
                         imageVector = Icons.Default.Vaccines,
                         contentDescription = "Vaksin",

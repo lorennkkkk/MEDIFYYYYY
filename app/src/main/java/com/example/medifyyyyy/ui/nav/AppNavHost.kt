@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.medifyyyyy.ui.common.UiResult
 import com.example.medifyyyyy.ui.pages.AddAllergyScreen
 import com.example.medifyyyyy.ui.pages.AddBankObatScreen
+import com.example.medifyyyyy.ui.pages.AddVaksinScreen
 import com.example.medifyyyyy.ui.pages.AllergyListScreen
 import com.example.medifyyyyy.ui.pages.BerandaFitur
 import com.example.medifyyyyy.ui.pages.DetailAllergyScreen
@@ -21,6 +22,8 @@ import com.example.medifyyyyy.ui.pages.DetailScreen
 import com.example.medifyyyyy.ui.pages.HomeScreen
 import com.example.medifyyyyy.ui.pages.LoginScreen
 import com.example.medifyyyyy.ui.pages.RegisterScreen
+import com.example.medifyyyyy.ui.pages.SertifikatVaksin
+import com.example.medifyyyyy.ui.pages.VaksinScreen
 import com.example.medifyyyyy.ui.viewmodel.AllergyFoodViewModel
 import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 
@@ -87,6 +90,7 @@ fun AppNavHost(
             BerandaFitur(
                 onNavigateBankObat = { nav.navigate(Screen.Home.route) },
                 onNavigateFoodAllergy = { nav.navigate(Screen.AllergyList.route) },
+                onNavigateSertifVaksin = { nav.navigate(Screen.ListSertif.route) },
                 onLogout = {
 
                     authViewModel.logout()
@@ -96,6 +100,7 @@ fun AppNavHost(
                 }
             )
         }
+        // Aisyah
         composable(Screen.Home.route) {
             HomeScreen(
                 onAdd = { nav.navigate(Screen.Add.route) },
@@ -109,6 +114,14 @@ fun AppNavHost(
         composable(Screen.Detail.route) { backStack ->
             val id = backStack.arguments?.getString("id") ?: ""
             DetailScreen(id = id, onBack = { nav.popBackStack() })
+        }
+
+        // Ajeng
+        composable(Screen.ListSertif.route) {
+            VaksinScreen(navController = nav, onAddVaksin = { nav.navigate(Screen.TambahSertif.route) })
+        }
+        composable(Screen.TambahSertif.route) {
+            AddVaksinScreen(navController = nav)
         }
 
         //Nava
