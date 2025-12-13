@@ -1,9 +1,9 @@
 package com.example.medifyyyyy.data.repositories
 
-import com.example.medifyyyyy.data.remote.SupabaseHolder // Asumsi file ini ada
+import com.example.medifyyyyy.data.remote.SupabaseHolder
 import com.example.medifyyyyy.domain.mapper.SertifikatVaksinMapper
 import com.example.medifyyyyy.domain.model.SertifikatVaksinDto
-import com.example.medifyyyyy.ui.pages.SertifikatVaksin
+import com.example.medifyyyyy.domain.model.SertifikatVaksin
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.storage
@@ -11,13 +11,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
+import android.util.Log // Import untuk debugging Logcat
 
 class SertifikatVaksinRepository {
 
     // Akses Supabase Client
     private val postgrest get() = SupabaseHolder.client.postgrest
-    // Ganti dengan nama bucket storage Anda yang sebenarnya
-    private val storage get() = SupabaseHolder.client.storage.from("vaksin-certificates")
+
+    // Pastikan nama bucket ini 100% cocok dengan nama bucket di Supabase Storage Anda!
+    private val storage get() = SupabaseHolder.client.storage.from("sertifikatvaksin-images")
 
     private fun resolveImageUrl(path: String?): String? {
         if (path == null) return null
@@ -25,18 +27,23 @@ class SertifikatVaksinRepository {
     }
 
     /** Mengambil semua sertifikat vaksin milik user yang sedang login. */
-    suspend fun fetchSertifikatVaksin(): List<SertifikatVaksin> {
+    suspend fun fetchSertifikatVaksin(): List<SertifikatVaksin> = withContext(Dispatchers.IO) {
         // Mendapatkan ID user yang sedang login
-        val userId = SupabaseHolder.session()?.user?.id ?: return emptyList()
+        val userId = SupabaseHolder.session()?.user?.id ?: return@withContext emptyList()
 
-        val response = postgrest["sertifikat_vaksin"].select {
-            filter {
-                eq("user_id", userId)
+        try {
+            val response = postgrest["sertifikat_vaksin"].select {
+                filter {
+                    eq("user_id", userId)
+                }
+                order("tanggal_vaksinasi", Order.DESCENDING)
             }
-            order("tanggal_vaksinasi", Order.DESCENDING)
+            val list = response.decodeList<SertifikatVaksinDto>()
+            return@withContext list.map { SertifikatVaksinMapper.map(it, ::resolveImageUrl) }
+        } catch (e: Exception) {
+            Log.e("SertifRepo", "Gagal memuat sertifikat: ${e.message}")
+            throw e
         }
-        val list = response.decodeList<SertifikatVaksinDto>()
-        return list.map { SertifikatVaksinMapper.map(it, ::resolveImageUrl) }
     }
 
     /** Menambahkan data sertifikat baru, termasuk upload gambar. */
@@ -47,35 +54,62 @@ class SertifikatVaksinRepository {
         tanggalVaksinasi: String, // String ISO 8601
         tempatVaksinasi: String,
         imageFile: File?
-    ): SertifikatVaksin {
+    ): SertifikatVaksin = withContext(Dispatchers.IO) {
+
+        // 1. Validasi Otentikasi
         val userId = SupabaseHolder.session()?.user?.id
             ?: throw IllegalStateException("User not logged in")
 
         var imagePath: String? = null
-        if (imageFile != null) {
-            imagePath = uploadImage(imageFile, userId)
+
+        // KRUSIAL: Tambahkan blok try-finally untuk memastikan file sementara dihapus
+        try {
+            if (imageFile != null) {
+                // 2. Upload Gambar
+                imagePath = uploadImage(imageFile, userId)
+                Log.d("SertifRepo", "Gambar berhasil di-upload ke path: $imagePath")
+            }
+
+            // 3. Insert Data ke Postgrest
+            val insert = postgrest["sertifikat_vaksin"].insert(
+                mapOf(
+                    "user_id" to userId,
+                    "nama_lengkap" to namaLengkap,
+                    "jenis_vaksin" to jenisVaksin,
+                    "dosis" to dosis,
+                    "tanggal_vaksinasi" to tanggalVaksinasi,
+                    "tempat_vaksinasi" to tempatVaksinasi,
+                    "image_url" to imagePath
+                )
+            ) { select() }
+
+            val dto = insert.decodeSingle<SertifikatVaksinDto>()
+            return@withContext SertifikatVaksinMapper.map(dto, ::resolveImageUrl)
+
+        } catch (e: Exception) {
+            // Lemparkan lagi agar ditangkap di ViewModel dan di-log di Screen
+            Log.e("SertifRepo", "Gagal operasi Add Sertifikat: ${e.message}")
+            throw e
+        } finally {
+            // PERBAIKAN: Pastikan file sementara dihapus
+            imageFile?.let {
+                if (it.exists()) {
+                    it.delete()
+                    Log.d("SertifRepo", "File sementara dihapus.")
+                }
+            }
         }
-
-        val insert = postgrest["sertifikat_vaksin"].insert(
-            mapOf(
-                "user_id" to userId,
-                "nama_lengkap" to namaLengkap,
-                "jenis_vaksin" to jenisVaksin,
-                "dosis" to dosis,
-                "tanggal_vaksinasi" to tanggalVaksinasi,
-                "tempat_vaksinasi" to tempatVaksinasi,
-                "image_path" to imagePath
-            )
-        ) { select() }
-
-        val dto = insert.decodeSingle<SertifikatVaksinDto>()
-        return SertifikatVaksinMapper.map(dto, ::resolveImageUrl)
     }
 
     private suspend fun uploadImage(file: File, uid: String): String = withContext(Dispatchers.IO) {
-        // Simpan file di folder milik user: [uid]/[UUID]_[filename]
-        val objectName = "$uid/${UUID.randomUUID()}_${file.name}"
-        storage.upload(objectName, file.readBytes())
-        objectName // path yang akan disimpan di kolom image_path DB
+        try {
+            // Simpan file di folder milik user: [uid]/[UUID]_[filename]
+            val objectName = "$uid/${UUID.randomUUID()}_${file.name}"
+            storage.upload(objectName, file.readBytes())
+            return@withContext objectName // path yang akan disimpan di kolom image_path DB
+        } catch (e: Exception) {
+            Log.e("SertifRepo", "Gagal upload gambar: ${e.message}")
+            throw e // Lemparkan error upload
+        }
     }
 }

@@ -1,15 +1,22 @@
 package com.example.medifyyyyy.ui.pages
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.Date
-
+@Serializable
 data class SertifikatVaksin(
-    val id: Int,
+    val id: String,
+    @SerialName("nama_lengkap")
     val namaLengkap: String,
+    @SerialName("jenis_vaksin")
     val jenisVaksin: String,
     val dosis: String,
-    val tanggalVaksinasi: Date,
+    @SerialName("tanggal_vaksinasi")
+    val tanggalVaksinasi: String, // ⚠️ lihat poin 3
+    @SerialName("tempat_vaksinasi")
     val tempatVaksinasi: String,
-    val imageUrl: String // URL Publik dari gambar sertifikat
+    @SerialName("image_url")
+    val imageUrl: String
 )
 
 // UI Result Helper (Opsional, tapi bagus untuk state management)

@@ -28,6 +28,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.util.Log
+import android.webkit.MimeTypeMap
 
 @Composable
 fun AddVaksinScreen(
@@ -44,31 +46,42 @@ fun AddVaksinScreen(
     var tanggalVaksinasi by remember { mutableStateOf<Date?>(Date()) }
     var tempatVaksinasi by remember { mutableStateOf("Klinik Sehat") }
 
-    // UBAH: Sekarang menyimpan URI, bukan File
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    // State untuk representasi File yang akan di-upload (akan diubah saat simpan)
     var imageFile by remember { mutableStateOf<File?>(null) }
 
     val addState by viewModel.addSertifikatState.collectAsState()
 
-    // 1. LAUNCHER UNTUK MEMILIH GAMBAR
+    // LAUNCHER UNTUK MEMILIH GAMBAR
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            imageUri = uri // Simpan URI yang dipilih
-        }
-    )
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+        uri ?: return@rememberLauncherForActivityResult
+    }
 
-    // Efek samping untuk menangani navigasi setelah simpan
+    // PERBAIKAN: Efek samping untuk menangani navigasi dan error
     LaunchedEffect(addState) {
         when (addState) {
             is UIResult.Success -> {
+                Log.d("VaksinUpload", "Upload dan Simpan BERHASIL!")
                 viewModel.resetAddSertifikatState()
                 navController.popBackStack()
             }
             is UIResult.Error -> {
-                // Tampilkan pesan error di sini
-                // Contoh: Log.e("AddVaksin", "Gagal: ${e.message}")
+                val exception = (addState as UIResult.Error).exception
+                val errorMessage = exception.localizedMessage ?: "Error tidak diketahui."
+
+                // KRUSIAL: Logging error yang detail
+                Log.e("VaksinUpload", "Upload GAGAL: $errorMessage", exception)
+
+                if (exception is IllegalStateException && errorMessage.contains("User not logged in")) {
+                    // Jika token kedaluwarsa, biarkan AppNavHost menavigasi ke Login
+                } else {
+                    // Error lain (Storage/Postgrest gagal)
+                    // Anda bisa menambahkan Snackbar/Toast di sini untuk memberi tahu user.
+                }
+
+                viewModel.resetAddSertifikatState()
             }
             else -> {}
         }
@@ -84,29 +97,30 @@ fun AddVaksinScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // 2. PANGGIL LAUNCHER KETIKA DIKLIK
-            UploadImageSection(imageUri != null) {
-                imagePickerLauncher.launch("image/*") // Membuka galeri
+            UploadImageSection(imageUri) {
+                if (!isLoading) {
+                    imagePickerLauncher.launch("image/*") // Membuka galeri
+                }
             }
             Spacer(Modifier.height(16.dp))
 
+            // Formulir Input (Tetap sama)
             OutlinedTextField(value = namaLengkap, onValueChange = { namaLengkap = it }, label = { Text("Nama Lengkap") }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading)
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(value = jenisVaksin, onValueChange = { jenisVaksin = it }, label = { Text("Jenis Vaksin") }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading)
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(value = dosis, onValueChange = { dosis = it }, label = { Text("Dosis") }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading)
             Spacer(Modifier.height(16.dp))
-
             OutlinedTextField(
                 value = tanggalVaksinasi?.let { SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).format(it) } ?: "Pilih tanggal",
                 onValueChange = { /* readOnly */ },
                 label = { Text("Tanggal Vaksinasi") },
                 trailingIcon = {
-                    Icon(Icons.Filled.CalendarToday, contentDescription = "Pilih Tanggal",
+                    Icon(Icons.Filled.CalendarToday, contentDescription = "Pil zih Tanggal",
                         Modifier.clickable { tanggalVaksinasi = Date() }
                     )
                 },
@@ -120,7 +134,7 @@ fun AddVaksinScreen(
 
             Button(
                 onClick = {
-                    // 3. LOGIKA SEBELUM SUBMIT: Konversi URI menjadi File nyata untuk Repositori
+                    // KRUSIAL: Konversi URI menjadi File sebelum dikirim ke ViewModel/Repository
                     if (imageUri != null) {
                         imageFile = uriToFile(context, imageUri!!)
                     }
@@ -137,7 +151,6 @@ fun AddVaksinScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                // KRUSIAL: Sekarang bergantung pada imageUri (yang didapat dari galeri)
                 enabled = !isLoading && imageUri != null,
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -152,65 +165,64 @@ fun AddVaksinScreen(
     }
 }
 
-// FUNGSI UTILITY: Mengkonversi URI menjadi File (Wajib untuk Supabase upload)
-// Fungsi ini harus didefinisikan di suatu tempat yang bisa diakses, jika tidak, taruh di file ini dulu.
+
+// FUNGSI UTILITY KRUSIAL: Mengkonversi URI Content Provider menjadi File sementara
 fun uriToFile(context: android.content.Context, uri: Uri): File? {
-    // Implementasi ini SANGAT kompleks dan bervariasi. Untuk tujuan demonstrasi/debugging:
-    // Paling umum: Salin isi URI ke file sementara (temp file)
+    val contentResolver = context.contentResolver.openInputStream(uri) ?: return null
+    val mime = context.contentResolver.getType(uri) ?: "image/*"
+    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "img"
+    val tempFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.$extension")
 
-    // **ANDA HARUS MENGUBAH INI dengan implementasi yang BENAR**
-    // (yang menangani ContentResolver dan I/O stream) di proyek nyata Anda.
-
-    // Sebagai *placeholder* sederhana agar kompilasi berhasil:
     return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val tempFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.jpg")
-        tempFile.outputStream().use { output ->
-            inputStream?.copyTo(output)
+        contentResolver.use { inputStream ->
+            tempFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
         }
-        inputStream?.close()
-        tempFile
+        if (tempFile.exists() && tempFile.length() > 0) {
+            tempFile
+
+        } else {
+            null
+        }
     } catch (e: Exception) {
+        android.util.Log.e("VaksinUpload", "Error converting URI to File: ${e.message}")
         e.printStackTrace()
         null
     }
 }
 
-// --- KOMPONEN PENDUKUNG (TETAP SAMA) ---
 
+// --- KOMPONEN PENDUKUNG ---
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddVaksinTopBar(x0: NavController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Tambah Sertifikat Vaksin",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable {
-                x0.popBackStack()
+fun AddVaksinTopBar(navController: NavController) {
+    // PERBAIKAN: Menggunakan TopAppBar standar Material 3 untuk navigasi yang benar
+    TopAppBar(
+        title = { Text(text = "Tambah Sertifikat Vaksin", fontWeight = FontWeight.Bold) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
-fun UploadImageSection(isUploaded: Boolean, onUploadClicked: () -> Unit) {
+fun UploadImageSection(imageUri: Uri?, onUploadClicked: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isUploaded) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.2f))
+            .background(if (imageUri!=null) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.2f))
             .padding(20.dp)
             .clickable(onClick = onUploadClicked)
     ) {
-        if (!isUploaded) {
+        val isUploaded = imageUri == null
+
+        if (isUploaded) {
             Icon(
                 Icons.Filled.UploadFile,
                 contentDescription = "Upload Sertifikat",
