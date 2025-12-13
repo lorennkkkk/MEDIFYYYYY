@@ -4,6 +4,7 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
     object Beranda : Screen ("beranda")
+
     // Aisyah
     object Home : Screen("home")
     object Add : Screen("add")
@@ -16,9 +17,13 @@ sealed class Screen(val route: String) {
     object DetailSertif : Screen("detail_sertif/{id}") {
         fun build(id: String) = "detail_sertif/$id"
     }
-    object AllergyList : Screen("allergy_list")
-    object AddAllergy : Screen("add_allergy")
-    object DetailAllergy : Screen("detail_allergy/{id}") {
+    object AllergyFoodList : Screen("allergy_list")
+    object AddAllergyFood : Screen("add_allergy")
+    object DetailAllergyFood : Screen("detail_allergy/{id}") {
         fun build(id: String) = "detail_allergy/$id"
     }
+
+    object SideEffectDashboard : Screen("side_effect_dashboard")
+    object SideEffectLog : Screen("side_effect_log")
+    object AddLog : Screen("add_log")
 }
