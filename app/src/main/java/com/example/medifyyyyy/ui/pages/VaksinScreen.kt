@@ -1,6 +1,5 @@
 package com.example.medifyyyyy.ui.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FabPosition
@@ -25,11 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.medifyyyyy.domain.model.SertifikatVaksin
 import com.example.medifyyyyy.ui.viewmodel.VaksinViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -91,7 +92,7 @@ fun VaksinScreen(
 // Note: VaksinTopBar Dihapus
 
 @Composable
-fun VaksinListContent(sertifikatList: List<SertifikatVaksin>, modifier: Modifier) {
+fun VaksinListContent(sertifikatList: List<com.example.medifyyyyy.domain.model.SertifikatVaksin>, modifier: Modifier) {
     LazyColumn(
         modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp),
@@ -137,15 +138,16 @@ fun SertifikatVaksinCard(sertifikat: SertifikatVaksin) {
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Science,
-                contentDescription = sertifikat.jenisVaksin,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                    .padding(8.dp)
-            )
+            sertifikat.imageUrl?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Foto Sertifikat Vaksin",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(
@@ -160,7 +162,7 @@ fun SertifikatVaksinCard(sertifikat: SertifikatVaksin) {
                     color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
-                    text = "Tanggal: ${dateFormatter.format(sertifikat.tanggalVaksinasi)}",
+                    text = "Tanggal: ${sertifikat.tanggalVaksinasi}",
                     fontSize = 12.sp,
                     color = Color.Gray
                 )

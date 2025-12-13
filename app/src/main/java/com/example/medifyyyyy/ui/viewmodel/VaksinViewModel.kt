@@ -3,7 +3,7 @@ package com.example.medifyyyyy.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medifyyyyy.data.repositories.SertifikatVaksinRepository
-import com.example.medifyyyyy.ui.pages.SertifikatVaksin
+import com.example.medifyyyyy.domain.model.SertifikatVaksin
 import com.example.medifyyyyy.ui.pages.UIResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
