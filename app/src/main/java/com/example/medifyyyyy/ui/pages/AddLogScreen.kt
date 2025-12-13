@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -58,16 +59,16 @@ fun AddLogScreen(
     val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
-        containerColor = BackgroundLight,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Tambah Log Efek Samping", fontWeight = FontWeight.Bold, color = CardWhite) },
+                title = { Text("Tambah Log Efek Samping", color = Color.White) },
                 navigationIcon = { 
                     IconButton(onClick = { navController.popBackStack() }) { 
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = CardWhite) 
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali", tint = Color.White) 
                     } 
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TealPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF00897B))
             )
         }
     ) { padding ->
@@ -75,15 +76,14 @@ fun AddLogScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .padding(16.dp) // Disamakan dengan AddAllergyScreen
                 .verticalScroll(scrollState)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // --- Bagian Gambar ---
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = BackgroundLight),
-                border = BorderStroke(1.dp, TealPrimary), // Menambahkan Border
+                border = BorderStroke(1.dp, Color(0xFF00897B)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
@@ -102,15 +102,15 @@ fun AddLogScreen(
                         ) { Icon(Icons.Default.Close, null, tint = CardWhite, modifier = Modifier.padding(4.dp)) }
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.Image, null, tint = TealPrimary, modifier = Modifier.size(48.dp))
-                            Text("Belum ada foto dipilih", color = TealPrimary)
+                            Icon(Icons.Default.Image, null, tint = Color(0xFF00897B), modifier = Modifier.size(48.dp))
+                            Text("Belum ada foto dipilih", color = Color(0xFF00897B))
                         }
                     }
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
             
-            // Tombol Galeri (Disesuaikan menjadi full width)
+            // Tombol Galeri
             Button(
                 onClick = { galleryLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -125,7 +125,7 @@ fun AddLogScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             // --- Form Input ---
-            Text("Detail Obat", style = MaterialTheme.typography.titleMedium, color = TealPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
+            Text("Detail Obat", style = MaterialTheme.typography.titleMedium, color = Color(0xFF00897B), fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
             Spacer(modifier = Modifier.height(8.dp))
             
             OutlinedTextField(
@@ -134,7 +134,7 @@ fun AddLogScreen(
                 label = { Text("Nama Obat") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = TealPrimary, unfocusedBorderColor = TealPrimary.copy(alpha = 0.5f))
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = Color(0xFF00897B), unfocusedBorderColor = Color(0xFF00897B).copy(alpha = 0.5f))
             )
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -144,7 +144,7 @@ fun AddLogScreen(
                 label = { Text("Dosis (Contoh: 500mg)") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = TealPrimary, unfocusedBorderColor = TealPrimary.copy(alpha = 0.5f))
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = Color(0xFF00897B), unfocusedBorderColor = Color(0xFF00897B).copy(alpha = 0.5f))
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -154,7 +154,7 @@ fun AddLogScreen(
                 label = { Text("Waktu Minum (Contoh: Pagi, 08:00)") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = TealPrimary, unfocusedBorderColor = TealPrimary.copy(alpha = 0.5f))
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = Color(0xFF00897B), unfocusedBorderColor = Color(0xFF00897B).copy(alpha = 0.5f))
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -165,14 +165,14 @@ fun AddLogScreen(
                     val isSelected = selectedStatus == level
                     val bgColor = if (isSelected) {
                         when (level) {
-                            "Ringan" -> TealPrimary
+                            "Ringan" -> Color(0xFF00897B)
                             "Sedang" -> OrangePrimary
                             "Berat" -> OrangeDark
-                            else -> TealPrimary
+                            else -> Color(0xFF00897B)
                         }
                     } else CardWhite
                     val textColor = if (isSelected) CardWhite else Color.Gray
-                    val borderColor = if (isSelected) Color.Transparent else TealPrimary.copy(alpha = 0.5f)
+                    val borderColor = if (isSelected) Color.Transparent else Color(0xFF00897B).copy(alpha = 0.5f)
                     
                     OutlinedButton(
                         onClick = { selectedStatus = level },
@@ -194,7 +194,7 @@ fun AddLogScreen(
                 modifier = Modifier.fillMaxWidth().height(150.dp),
                 shape = RoundedCornerShape(12.dp),
                 maxLines = 8,
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = TealPrimary, unfocusedBorderColor = TealPrimary.copy(alpha = 0.5f))
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = CardWhite, unfocusedContainerColor = CardWhite, focusedBorderColor = Color(0xFF00897B), unfocusedBorderColor = Color(0xFF00897B).copy(alpha = 0.5f))
             )
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -220,7 +220,7 @@ fun AddLogScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = TealPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
                 enabled = !isLoading
             ) {
                 if (isLoading) {
