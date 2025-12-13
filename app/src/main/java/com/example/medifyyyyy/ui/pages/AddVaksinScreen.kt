@@ -140,7 +140,23 @@ fun AddVaksinScreen(
 
 @Composable
 fun AddVaksinTopBar(x0: NavController) {
-    TODO("Not yet implemented")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Tambah Sertifikat Vaksin",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable {
+                x0.popBackStack()
+            }
+        )
+    }
 }
 
 // **UploadImageSection (Pembaruan untuk menggunakan Boolean)**

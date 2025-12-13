@@ -49,7 +49,7 @@ fun VaksinScreen(
         floatingActionButton = {
             FloatingActionButton(
                 // PERBAIKAN: Menggunakan lambda onAddVaksin yang sudah diperbaiki
-                onClick = onAddVaksin,
+                onClick = { onAddVaksin() },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             ) {
