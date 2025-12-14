@@ -25,5 +25,17 @@ sealed class Screen(val route: String) {
 
     object SideEffectDashboard : Screen("side_effect_dashboard")
     object SideEffectLog : Screen("side_effect_log")
+    
+    // Rute Tambah (tanpa ID)
     object AddLog : Screen("add_log")
+    
+    // Rute Edit (dengan ID)
+    object EditLog : Screen("edit_log/{id}") {
+        fun build(id: String) = "edit_log/$id"
+    }
+
+    // Rute Detail (dengan ID)
+    object DetailLog : Screen("detail_log/{id}") {
+        fun build(id: String) = "detail_log/$id"
+    }
 }

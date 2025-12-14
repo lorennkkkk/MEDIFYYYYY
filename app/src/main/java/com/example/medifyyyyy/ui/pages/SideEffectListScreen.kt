@@ -14,23 +14,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.example.medifyyyyy.ui.common.*
-import com.example.medifyyyyy.ui.theme.* 
+import com.example.medifyyyyy.ui.nav.Screen // Import Screen untuk navigasi
+import com.example.medifyyyyy.ui.theme.*
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
 @Composable
 fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) {
     val drugLogs by viewModel.drugLogs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Refresh data saat layar ditampilkan kembali
-    LaunchedEffect(Unit) {
-        viewModel.fetchData()
+    // Gunakan DisposableEffect untuk mendengarkan siklus hidup (ON_RESUME)
+    // Ini memastikan data di-refresh setiap kali layar ini tampil kembali
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.fetchData()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     Scaffold(
@@ -130,8 +144,11 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                         }
                     }
                 } else {
-                    items(drugLogs) {
-                        DrugLogCard(it)
+                    items(drugLogs) { log ->
+                        // UPDATED: Menambahkan aksi klik untuk melihat detail
+                        DrugLogCard(log, onClick = {
+                            navController.navigate(Screen.DetailLog.build(log.id.toString()))
+                        })
                     }
                 }
             }

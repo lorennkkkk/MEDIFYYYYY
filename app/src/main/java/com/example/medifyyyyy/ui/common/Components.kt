@@ -15,24 +15,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.medifyyyyy.domain.model.AllergyLog
 import com.example.medifyyyyy.domain.model.DrugLog
-import com.example.medifyyyyy.ui.theme.* // Mengimpor warna baru Anda
+import com.example.medifyyyyy.ui.theme.* 
 
 @Composable
 fun HeaderSimple() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(TealPrimary) // Ganti TealMedical
+            .background(TealPrimary) 
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Text(
             text = "Riwayat Alergi",
-            color = CardWhite, // Ganti PureWhite
+            color = CardWhite, 
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
@@ -57,11 +59,10 @@ fun GreetingCard() {
 
 @Composable
 fun LogItemCard(log: AllergyLog) {
-    // Logika warna severity disesuaikan dengan palet baru
     val severityColor = when (log.severity) {
         "Ringan" -> TealPrimary.copy(alpha = 0.7f)
         "Sedang" -> OrangePrimary
-        "Berat" -> OrangeDark // Ganti AlertRed
+        "Berat" -> OrangeDark 
         else -> TealPrimary
     }
 
@@ -92,7 +93,7 @@ fun LogItemCard(log: AllergyLog) {
 }
 
 @Composable
-fun DrugLogCard(log: DrugLog) {
+fun DrugLogCard(log: DrugLog, onClick: () -> Unit = {}) {
     // Mapping status ke warna baru
     val statusColor = when (log.status) {
         "Ringan" -> TealPrimary
@@ -101,11 +102,27 @@ fun DrugLogCard(log: DrugLog) {
         else -> Color.Gray
     }
 
-    Card(colors = CardDefaults.cardColors(containerColor = CardWhite), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(1.dp), modifier = Modifier.fillMaxWidth()) {
+    // Menambahkan modifier clickable
+    Card(
+        colors = CardDefaults.cardColors(containerColor = CardWhite), 
+        shape = RoundedCornerShape(16.dp), 
+        elevation = CardDefaults.cardElevation(1.dp), 
+        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+    ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.Top) {
+                // UPDATE: Menampilkan Gambar jika ada
                 Box(modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(BackgroundLight), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Medication, null, tint = TealPrimary)
+                    if (log.imageUrl != null) {
+                        AsyncImage(
+                            model = log.imageUrl,
+                            contentDescription = "Foto Obat",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(Icons.Default.Medication, null, tint = TealPrimary)
+                    }
                 }
                 Spacer(modifier = Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
@@ -128,7 +145,13 @@ fun DrugLogCard(log: DrugLog) {
 
 @Composable
 fun ActionButton(title: String, icon: ImageVector, bg: Color, contentColor: Color, onClick: () -> Unit) {
-    Card(colors = CardDefaults.cardColors(containerColor = bg), elevation = CardDefaults.cardElevation(2.dp), shape = RoundedCornerShape(16.dp), modifier = Modifier.width(140.dp).height(90.dp).clickable { onClick() }) {
+    // UPDATED: Menggunakan fillMaxWidth() agar tombol memenuhi ruang yang tersedia (weight)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = bg), 
+        elevation = CardDefaults.cardElevation(2.dp), 
+        shape = RoundedCornerShape(16.dp), 
+        modifier = Modifier.fillMaxWidth().height(90.dp).clickable { onClick() }
+    ) {
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Box(
                 modifier = Modifier.size(38.dp)

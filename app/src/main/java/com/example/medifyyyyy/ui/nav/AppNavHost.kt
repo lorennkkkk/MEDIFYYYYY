@@ -15,6 +15,7 @@ import com.example.medifyyyyy.ui.pages.AddVaksinScreen
 import com.example.medifyyyyy.ui.pages.AllergyListScreen
 import com.example.medifyyyyy.ui.pages.BerandaFitur
 import com.example.medifyyyyy.ui.pages.DetailScreen
+import com.example.medifyyyyy.ui.pages.DetailLogScreen // Import DetailLogScreen
 import com.example.medifyyyyy.ui.pages.HomeScreen
 import com.example.medifyyyyy.ui.pages.HomeDrugAllergy
 import com.example.medifyyyyy.ui.pages.LoginScreen
@@ -24,6 +25,7 @@ import com.example.medifyyyyy.ui.viewmodel.AllergyFoodViewModel
 import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 import com.example.medifyyyyy.ui.pages.SideEffectListScreen
 import com.example.medifyyyyy.ui.pages.AddLogScreen
+import com.example.medifyyyyy.ui.viewmodel.BankObatViewModel
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
 
@@ -72,10 +74,7 @@ fun AppNavHost(
 
         // Aisyah - Bank Obat (HomeScreen Asli)
         composable(Screen.Home.route) {
-            // Kita hapus explicit injection jika menyebabkan masalah, biarkan default value bekerja
-            // atau gunakan named argument yang benar sesuai definisi fungsi HomeScreen
             HomeScreen(
-                // BankObatViewModel = viewModel(), // Biarkan default value bekerja
                 onAdd = { nav.navigate(Screen.Add.route) },
                 onDetail = { id: String -> nav.navigate(Screen.Detail.build(id)) },
                 onBack = { nav.popBackStack() }
@@ -100,21 +99,15 @@ fun AppNavHost(
 
         // Nava - Alergi Makanan
         composable(Screen.AllergyFoodList.route) {
-            // Ganti tipe datanya jadi AllergyFoodViewModel
             val allergyViewModel: AllergyFoodViewModel = viewModel()
-
             AllergyListScreen(
                 viewModel = allergyViewModel,
-                onNavigateToAdd = {
-                    nav.navigate(Screen.AddAllergyFood.route)
-                },
-                onNavigateToDetail = { id ->
-                    nav.navigate(Screen.DetailAllergyFood.build(id))
-                }
+                onNavigateToAdd = { nav.navigate(Screen.AddAllergyFood.route) },
+                onNavigateToDetail = { id -> nav.navigate(Screen.DetailAllergyFood.build(id)) }
             )
         }
 
-        // Loren - HomeDrugAllergy (Dahulu LogDashboardScreen)
+        // Loren - HomeDrugAllergy (Dashboard Log)
         composable(Screen.SideEffectDashboard.route) {
             val logViewModel: LogViewModel = viewModel()
             HomeDrugAllergy(navController = nav, viewModel = logViewModel)
@@ -126,9 +119,32 @@ fun AppNavHost(
             SideEffectListScreen(navController = nav, viewModel = logViewModel)
         }
 
-        // Loren - Tambah Log
+        // Loren - Tambah Log (CREATE)
         composable(Screen.AddLog.route) {
-            AddLogScreen(navController = nav)
+            val logViewModel: LogViewModel = viewModel()
+            AddLogScreen(navController = nav, viewModel = logViewModel)
+        }
+
+        // Loren - Detail Log (READ SINGLE & DELETE ACCESS)
+        composable("detail_log/{id}") { backStackEntry ->
+            val idString = backStackEntry.arguments?.getString("id")
+            val id = idString?.toLongOrNull()
+            
+            if (id != null) {
+                val logViewModel: LogViewModel = viewModel()
+                DetailLogScreen(navController = nav, logId = id, viewModel = logViewModel)
+            }
+        }
+
+        // Loren - Edit Log (UPDATE)
+        composable("edit_log/{id}") { backStackEntry ->
+            val idString = backStackEntry.arguments?.getString("id")
+            val id = idString?.toLongOrNull()
+            
+            if (id != null) {
+                val logViewModel: LogViewModel = viewModel()
+                AddLogScreen(navController = nav, viewModel = logViewModel, logId = id)
+            }
         }
     }
 }

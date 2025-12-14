@@ -39,14 +39,14 @@ import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 @Composable
 fun AddLogScreen(
     navController: NavController,
-    viewModel: LogViewModel = viewModel()
+    viewModel: LogViewModel = viewModel(),
+    logId: Long? = null // Parameter opsional untuk mode edit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     // Cek Dark Mode
     val isDark = isSystemInDarkTheme()
-    // Warna dinamis: Teal (Light) atau Primary Theme (Dark - seperti DetailBankObatScreen)
     val dynamicPrimaryColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFF00897B)
     val dynamicOnPrimaryColor = if (isDark) MaterialTheme.colorScheme.onPrimary else Color.White
 
@@ -58,17 +58,53 @@ fun AddLogScreen(
     var selectedStatus by remember { mutableStateOf("Ringan") }
     
     // State untuk Image
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { imageUri = it }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }       // Untuk preview gambar baru yang dipilih
+    var imageBytes by remember { mutableStateOf<ByteArray?>(null) } // Data gambar untuk diupload
+    var existingImageUrl by remember { mutableStateOf<String?>(null) } // URL gambar lama (saat edit)
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            imageUri = uri
+            // Baca data gambar dari URI menjadi ByteArray
+            val inputStream = context.contentResolver.openInputStream(uri)
+            imageBytes = inputStream?.readBytes()
+        }
+    }
 
     val statusOptions = listOf("Ringan", "Sedang", "Berat")
     val isLoading by viewModel.isLoading.collectAsState()
+    
+    // Observe error state from ViewModel
+    val errorState by viewModel.error.collectAsState()
+
+    // Mode Edit: Load data jika logId ada
+    LaunchedEffect(logId) {
+        if (logId != null) {
+            val log = viewModel.getDrugLog(logId)
+            if (log != null) {
+                drugName = log.drugName
+                dosage = log.dosage ?: ""
+                time = log.time ?: ""
+                description = log.description ?: ""
+                selectedStatus = log.status ?: "Ringan"
+                existingImageUrl = log.imageUrl // Simpan URL gambar lama
+            }
+        }
+    }
+
+    // Show Toast when error occurs
+    LaunchedEffect(errorState) {
+        errorState?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearError()
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Tambah Log Efek Samping", color = dynamicOnPrimaryColor) },
+                title = { Text(if (logId == null) "Tambah Log Efek Samping" else "Edit Log Efek Samping", color = dynamicOnPrimaryColor) },
                 navigationIcon = { 
                     IconButton(onClick = { navController.popBackStack() }) { 
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = dynamicOnPrimaryColor) 
@@ -85,22 +121,36 @@ fun AddLogScreen(
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            // --- Bagian Gambar (Bisa diklik untuk buka galeri) ---
+            // --- Bagian Gambar ---
             Card(
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), // Menggunakan surfaceVariant agar adaptif tema
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 border = BorderStroke(1.dp, dynamicPrimaryColor),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .clickable { galleryLauncher.launch("image/*") } // Aksi klik pindah ke sini
+                    .clickable { galleryLauncher.launch("image/*") }
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (imageUri != null) {
-                        AsyncImage(model = imageUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    // Logika Tampilan: Prioritaskan gambar baru (URI), lalu gambar lama (URL), lalu Placeholder
+                    val displayModel = imageUri ?: existingImageUrl
+
+                    if (displayModel != null) {
+                        AsyncImage(
+                            model = displayModel,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
                         IconButton(
-                            onClick = { imageUri = null },
+                            onClick = { 
+                                imageUri = null
+                                imageBytes = null
+                                // Jangan hapus existingImageUrl di sini jika ingin membatalkan pilihan baru dan kembali ke gambar lama,
+                                // tapi jika maksudnya "hapus gambar", kita butuh state tambahan.
+                                // Untuk sekarang, tombol X hanya membatalkan gambar yang BARU dipilih.
+                            },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(8.dp)
@@ -115,7 +165,6 @@ fun AddLogScreen(
                     }
                 }
             }
-            // Spacer bekas tombol galeri dihapus atau disesuaikan
             Spacer(modifier = Modifier.height(24.dp))
             
             // --- Form Input ---
@@ -209,18 +258,31 @@ fun AddLogScreen(
                     if (drugName.isBlank()) {
                         Toast.makeText(context, "Nama obat wajib diisi!", Toast.LENGTH_SHORT).show()
                     } else {
+                        // Objek DrugLog dasar
                         val newLog = DrugLog(
+                            id = logId ?: 0,
                             drugName = drugName,
                             dosage = dosage,
                             time = time,
                             status = selectedStatus,
                             description = description,
-                            hasImage = imageUri != null,
-                            imageCount = if (imageUri != null) 1 else 0
+                            // Field imageCount dan hasImage akan dihandle di repository berdasarkan imageBytes
+                            // Tapi kita set defaultnya di sini
+                            hasImage = (imageUri != null) || (existingImageUrl != null)
                         )
-                        viewModel.addDrugLog(newLog) {
-                            Toast.makeText(context, "Log berhasil disimpan", Toast.LENGTH_SHORT).show()
-                            navController.popBackStack()
+                        
+                        if (logId == null) {
+                            // CREATE: Kirim imageBytes (bisa null jika tidak ada gambar)
+                            viewModel.addDrugLog(newLog, imageBytes) {
+                                Toast.makeText(context, "Log berhasil disimpan", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            }
+                        } else {
+                            // UPDATE: Kirim imageBytes (null jika gambar tidak berubah)
+                            viewModel.updateDrugLog(newLog, imageBytes) {
+                                Toast.makeText(context, "Log berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            }
                         }
                     }
                 },
@@ -232,7 +294,7 @@ fun AddLogScreen(
                 if (isLoading) {
                     CircularProgressIndicator(color = dynamicOnPrimaryColor, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Simpan Log", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = dynamicOnPrimaryColor)
+                    Text(if (logId == null) "Simpan Log" else "Update Log", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = dynamicOnPrimaryColor)
                 }
             }
             Spacer(modifier = Modifier.height(50.dp))

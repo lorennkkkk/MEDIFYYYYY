@@ -22,6 +22,9 @@ class LogViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
+
     init {
         fetchData()
     }
@@ -29,28 +32,90 @@ class LogViewModel : ViewModel() {
     fun fetchData() {
         viewModelScope.launch {
             _isLoading.value = true
-            repository.getAllergyLogs().collect { _allergyLogs.value = it }
-        }
-        viewModelScope.launch {
-            repository.getDrugLogs().collect {
-                _drugLogs.value = it
+            try {
+                // Ambil data alergi
+                repository.getAllergyLogs().collect { _allergyLogs.value = it }
+
+                // Ambil data obat (menggunakan suspend function baru)
+                val drugs = repository.getDrugLogs()
+                _drugLogs.value = drugs
+
+            } catch (e: Exception) {
+                Log.e("LogViewModel", "Fetch failed: ${e.message}")
+                _error.value = "Gagal memuat data: ${e.message}"
+            } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun addDrugLog(log: DrugLog, onSuccess: () -> Unit) {
+    // CREATE
+    // Tambahkan parameter imageBytes (nullable)
+    fun addDrugLog(log: DrugLog, imageBytes: ByteArray? = null, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                repository.addDrugLog(log)
-                fetchData() // Refresh data setelah berhasil menambah
+                // Teruskan imageBytes ke repository
+                repository.addDrugLog(log, imageBytes)
+                fetchData()
                 onSuccess()
             } catch (e: Exception) {
-                Log.e("LogViewModel", "Gagal menyimpan log: ${e.message}")
+                Log.e("LogViewModel", "Add failed: ${e.message}")
+                _error.value = "Gagal menyimpan: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    // UPDATE
+    // Tambahkan parameter imageBytes (nullable)
+    fun updateDrugLog(log: DrugLog, imageBytes: ByteArray? = null, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Teruskan imageBytes ke repository
+                repository.updateDrugLog(log, imageBytes)
+                fetchData()
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("LogViewModel", "Update failed: ${e.message}")
+                _error.value = "Gagal mengupdate: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // DELETE
+    fun deleteDrugLog(id: Long, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                repository.deleteDrugLog(id)
+                fetchData()
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("LogViewModel", "Delete failed: ${e.message}")
+                _error.value = "Gagal menghapus: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // GET SINGLE
+    suspend fun getDrugLog(id: Long): DrugLog? {
+        return try {
+            repository.getDrugLog(id)
+        } catch (e: Exception) {
+            Log.e("LogViewModel", "Get Detail failed: ${e.message}")
+            _error.value = "Gagal mengambil detail: ${e.message}"
+            null
+        }
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }
