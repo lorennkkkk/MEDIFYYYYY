@@ -71,29 +71,21 @@ fun HomeHeader(dynamicPrimaryColor: Color, dynamicOnPrimaryColor: Color, onBack:
         modifier = Modifier
             .fillMaxWidth()
             .background(dynamicPrimaryColor)
-            .padding(24.dp)
+            // UPDATED: Padding disesuaikan agar mirip AllergyListScreen (24.dp cukup sekali saja)
+            .padding(horizontal = 24.dp, vertical = 24.dp) 
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Tombol Back (Kiri)
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Kembali",
-                    tint = Color.White
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            // Teks Header (Lingkaran dihapus)
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Daftar Alergi Obat", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Pantauan Kesehatan", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-            }
-            
-            // Icon Notifikasi (Kanan)
-//            Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White)
-        }
+//        Row(
+//            // Padding dalam dihapus agar tidak double padding
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            IconButton(onClick = onBack) {
+//                Icon(
+//                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                    contentDescription = "Kembali",
+//                    tint = Color.White
+//                )
+//            }
+//        }
     }
 }
 
@@ -183,14 +175,14 @@ fun RecentLogsSection(
                 fontWeight = FontWeight.Bold,
                 color = sectionTitleColor 
             )
-//            if (logs.isNotEmpty()) {
-//                Text(
-//                    text = "Lihat Semua",
-//                    fontSize = 13.sp,
-//                    color = dynamicPrimaryColor,
-//                    fontWeight = FontWeight.SemiBold
-//                )
-//            }
+            if (logs.isNotEmpty()) {
+                Text(
+                    text = "Lihat Semua",
+                    fontSize = 13.sp,
+                    color = dynamicPrimaryColor, 
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -306,13 +298,6 @@ fun ActionButton(
 }
 
 @Composable
-fun HeaderSimple() {
-    Column(modifier = Modifier.fillMaxWidth().background(TealPrimary).padding(24.dp)) {
-        Text("Riwayat Alergi", color = CardWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
 fun GreetingCard() {
     Card(
         colors = CardDefaults.cardColors(containerColor = CardWhite),
@@ -348,8 +333,6 @@ fun AlertCard() {
         }
     }
 }
-
-// DailySummarySection, StatItem removed as requested by user to remove "status alergi" card
 
 @Composable
 fun FilterChipItem(text: String, isSelected: Boolean, color: Color) {

@@ -1,6 +1,7 @@
 package com.example.medifyyyyy.ui.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,11 +28,17 @@ import com.example.medifyyyyy.ui.nav.Screen // Import Screen untuk navigasi
 import com.example.medifyyyyy.ui.theme.*
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) {
     val drugLogs by viewModel.drugLogs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // --- Konfigurasi Dark Mode (Agar sama dengan HomeDrugAllergy) ---
+    val isDark = isSystemInDarkTheme()
+    val dynamicPrimaryColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFF00897B)
+    val dynamicOnPrimaryColor = if (isDark) MaterialTheme.colorScheme.onPrimary else Color.White
 
     // Gunakan DisposableEffect untuk mendengarkan siklus hidup (ON_RESUME)
     // Ini memastikan data di-refresh setiap kali layar ini tampil kembali
@@ -50,38 +57,38 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background, 
         topBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(TealPrimary) 
-                    .padding(20.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = CardWhite) 
+            TopAppBar(
+                title = { 
+                    Column {
+                        Text(
+                            text = "Catatan Efek Samping", 
+                            color = MaterialTheme.colorScheme.primary, 
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = "${drugLogs.size} obat dicatat",
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = 14.sp
+                        )
                     }
-                    Text(
-                        text = "Catatan Efek Samping",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = CardWhite 
-                    )
-                    Spacer(modifier = Modifier.width(48.dp))
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = "Back", 
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Hari ini, 15 Desember 2024", color = CardWhite.copy(0.9f), fontSize = 14.sp)
-                Text("${drugLogs.size} obat dicatat", color = CardWhite.copy(0.7f), fontSize = 12.sp)
-            }
+            )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate("add_log") },
-                containerColor = TealPrimary, 
-                contentColor = CardWhite,     
+                containerColor = dynamicPrimaryColor, // Sesuaikan warna FAB
+                contentColor = dynamicOnPrimaryColor,     
                 shape = RoundedCornerShape(50),
                 modifier = Modifier.padding(bottom = 10.dp)
             ) {
@@ -93,7 +100,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
 
-            // --- Bagian Pencarian ---
+            // --- Bagian Pencarian & Filter ---
             Column(modifier = Modifier.padding(20.dp)) {
                 OutlinedTextField(
                     value = "",
@@ -121,7 +128,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                 if (isLoading) {
                     item {
                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = TealPrimary) 
+                            CircularProgressIndicator(color = dynamicPrimaryColor) 
                         }
                     }
                 } else if (drugLogs.isEmpty()) {
@@ -135,7 +142,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                     }
                 } else {
                     items(drugLogs) { log ->
-                        // UPDATED: Menambahkan aksi klik untuk melihat detail
+                        // Menambahkan aksi klik untuk melihat detail
                         DrugLogCard(log, onClick = {
                             navController.navigate(Screen.DetailLog.build(log.id.toString()))
                         })

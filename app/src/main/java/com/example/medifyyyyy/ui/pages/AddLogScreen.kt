@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -95,13 +96,22 @@ fun AddLogScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(if (logId == null) "Tambah Log Efek Samping" else "Edit Log Efek Samping", color = onPrimaryColor) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali", tint = onPrimaryColor)
-                    }
+                title = { 
+                    Text(
+                        if (logId == null) "Tambah Log Efek Samping" else "Edit Log Efek Samping",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor)
+                navigationIcon = { 
+                    IconButton(onClick = { navController.popBackStack() }) { 
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = "Kembali", 
+                            tint = MaterialTheme.colorScheme.secondary
+                        ) 
+                    } 
+                }
             )
         }
     ) { padding ->

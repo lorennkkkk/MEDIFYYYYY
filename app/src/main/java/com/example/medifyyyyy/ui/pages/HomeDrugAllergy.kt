@@ -3,10 +3,13 @@ package com.example.medifyyyyy.ui.pages
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.medifyyyyy.ui.common.*
@@ -14,6 +17,7 @@ import com.example.medifyyyyy.ui.nav.Screen
 import com.example.medifyyyyy.ui.theme.* 
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
     val logs by viewModel.drugLogs.collectAsState()
@@ -33,11 +37,23 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background, 
         topBar = {
-            // Updated to pass onBack parameter
-            HomeHeader(
-                dynamicPrimaryColor = dynamicPrimaryColor, 
-                dynamicOnPrimaryColor = dynamicOnPrimaryColor,
-                onBack = { navController.popBackStack() }
+            TopAppBar(
+                title = { 
+                    Text(
+                        "Daftar Alergi Obat", 
+                        color = MaterialTheme.colorScheme.primary, 
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = "Back", 
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
