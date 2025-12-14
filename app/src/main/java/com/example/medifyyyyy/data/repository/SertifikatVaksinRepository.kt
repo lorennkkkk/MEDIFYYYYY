@@ -3,7 +3,7 @@ package com.example.medifyyyyy.data.repositories
 import com.example.medifyyyyy.data.remote.SupabaseHolder
 import com.example.medifyyyyy.domain.mapper.SertifikatVaksinMapper
 import com.example.medifyyyyy.domain.model.SertifikatVaksinDto
-import com.example.medifyyyyy.ui.pages.SertifikatVaksin
+import com.example.medifyyyyy.domain.model.SertifikatVaksin
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.storage
@@ -19,7 +19,7 @@ class SertifikatVaksinRepository {
     private val postgrest get() = SupabaseHolder.client.postgrest
 
     // Pastikan nama bucket ini 100% cocok dengan nama bucket di Supabase Storage Anda!
-    private val storage get() = SupabaseHolder.client.storage.from("sertifikat-images")
+    private val storage get() = SupabaseHolder.client.storage.from("sertifikatvaksin-images")
 
     private fun resolveImageUrl(path: String?): String? {
         if (path == null) return null

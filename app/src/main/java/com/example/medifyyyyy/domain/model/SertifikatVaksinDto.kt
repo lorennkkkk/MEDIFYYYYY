@@ -14,3 +14,13 @@ data class SertifikatVaksinDto(
     val tempat_vaksinasi: String,
     val image_url: String? // Path gambar di storage
 )
+
+data class SertifikatVaksin(
+    val id: String,
+    val namaLengkap: String,
+    val jenisVaksin: String,
+    val dosis: String,
+    val tanggalVaksinasi: String,
+    val tempatVaksinasi: String,
+    val imageUrl: String?
+)

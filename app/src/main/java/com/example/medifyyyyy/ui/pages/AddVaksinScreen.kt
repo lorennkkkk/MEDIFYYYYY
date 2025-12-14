@@ -120,7 +120,7 @@ fun AddVaksinScreen(
                 onValueChange = { /* readOnly */ },
                 label = { Text("Tanggal Vaksinasi") },
                 trailingIcon = {
-                    Icon(Icons.Filled.CalendarToday, contentDescription = "Pilih Tanggal",
+                    Icon(Icons.Filled.CalendarToday, contentDescription = "Pil zih Tanggal",
                         Modifier.clickable { tanggalVaksinasi = Date() }
                     )
                 },
