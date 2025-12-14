@@ -16,12 +16,15 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Vaccines
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.ui.tooling.preview.Preview
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
+    onNavigateJadwal: () -> Unit,
+    onNavigateProfile: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -68,14 +71,14 @@ fun BerandaFitur(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Todo */ }) {
+                    IconButton(onClick = onNavigateJadwal) {
                     Icon(
                         imageVector = Icons.Default.Checklist,
                         contentDescription = "To-Do",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Profil */ }) {
+                    IconButton(onClick = onNavigateProfile ) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profil",
@@ -137,4 +140,15 @@ fun FeatureCard(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BerandaFiturPreview() {
+    BerandaFitur(
+        onNavigateBankObat = {},
+        onNavigateJadwal ={},
+        onNavigateProfile={},
+        onLogout = {}
+    )
 }

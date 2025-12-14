@@ -1,67 +1,113 @@
 package com.example.medifyyyyy.ui.viewmodel
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medifyyyyy.data.repositories.AuthRepository
+import io.github.jan.supabase.gotrue.SessionStatus
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import com.example.medifyyyyy.data.repositories.AuthRepository
-import com.example.medifyyyyy.ui.common.UiResult
-import io.github.jan.supabase.gotrue.SessionStatus
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+
+class AuthViewModel : ViewModel() {
+
+    private val repo = AuthRepository()
+
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+//    var username by mutableStateOf<String?>(null)
+//    var firstName by mutableStateOf<String?>(null)
+//    var lastName by mutableStateOf<String?>(null)
 
 
-class AuthViewModel(
-    private val repo: AuthRepository = AuthRepository()
-) : ViewModel() {
+    val sessionStatus = repo.sessionStatus
 
-    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Success(repo.currentSession() != null))
-    val authState: StateFlow<UiResult<Boolean>> = _authState
+    init {
+        checkExistingSession()
+        observeSessionStatus()
+    }
 
-    val isAuthenticated: StateFlow<Boolean> = repo.sessionStatus
-        .map { status -> status is SessionStatus.Authenticated }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
+    private fun checkExistingSession() {
+        _isLoggedIn.value = repo.currentSession() != null
+    }
 
-    fun register(email: String, password: String) {
-        _authState.value = UiResult.Loading
+    private fun observeSessionStatus() {
         viewModelScope.launch {
-            try {
-                repo.register(email, password)
-                _authState.value = UiResult.Success(true)
-            } catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Register gagal")
+            sessionStatus.collect { status ->
+                when (status) {
+                    is SessionStatus.Authenticated -> {
+                        _isLoggedIn.value = true
+                    }
+                    is SessionStatus.NotAuthenticated -> {
+                        _isLoggedIn.value = false
+                    }
+                    else -> Unit
+                }
             }
         }
     }
 
-    fun login(email: String, password: String) {
-        _authState.value = UiResult.Loading
+    fun register(firstName: String,
+                 lastName: String,
+                 username: String,
+                 email: String,
+                 password: String,
+                 onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
+            _loading.value = true
+            _errorMessage.value = null
+
+
+            try {
+                repo.register(firstName, lastName, username, email, password)
+                _isLoggedIn.value = true
+                onSuccess()
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
+        }
+
+
+
+    fun login(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _loading.value = true
+            _errorMessage.value = null
+
             try {
                 repo.login(email, password)
-                _authState.value = UiResult.Success(true)
+                _isLoggedIn.value = true
+                onSuccess()
             } catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Login gagal")
+                _errorMessage.value = e.message
+            } finally {
+                _loading.value = false
             }
         }
     }
+
+
 
     fun logout() {
         viewModelScope.launch {
-            try {
-                repo.logout()
-                _authState.value = UiResult.Success(false)
-            }
-            catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Logout gagal")
-            }}
-
+            repo.logout()
+            _isLoggedIn.value = false
+        }
     }
 
 

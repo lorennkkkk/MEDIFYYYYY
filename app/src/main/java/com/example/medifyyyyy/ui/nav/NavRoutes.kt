@@ -9,4 +9,7 @@ sealed class Screen(val route: String) {
     object Detail : Screen("detail/{id}") {
         fun build(id: String) = "detail/$id"
     }
+    object  Profile: Screen("profile")
+    object  Jadwal: Screen("todo")
 }
+
