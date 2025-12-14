@@ -119,6 +119,11 @@ fun AddAllergyScreen(
                 shape = RoundedCornerShape(8.dp),
                 maxLines = 5
             )
+            Text(
+                text = "Contoh: Susu sapi mengandung kasein...",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -128,16 +133,16 @@ fun AddAllergyScreen(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Tombol Kamera (Sementara pakai Toast dulu, karena setup Kamera agak rumit)
-                Button(
-                    onClick = { Toast.makeText(context, "Fitur Kamera menyusul ya!", Toast.LENGTH_SHORT).show() },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Kamera")
-                }
+//                Button(
+//                    onClick = { Toast.makeText(context, "Fitur Kamera menyusul ya!", Toast.LENGTH_SHORT).show() },
+//                    modifier = Modifier.weight(1f),
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
+//                    shape = RoundedCornerShape(8.dp)
+//                ) {
+//                    Icon(Icons.Default.CameraAlt, contentDescription = null)
+//                    Spacer(modifier = Modifier.width(8.dp))
+//                    Text("Kamera")
+//                }
 
                 // Tombol Galeri
                 OutlinedButton(
@@ -149,6 +154,7 @@ fun AddAllergyScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Galeri", color = Color(0xFF00897B))
                 }
+
             }
 
             // Preview Foto (Kalau user sudah pilih foto)
@@ -171,14 +177,14 @@ fun AddAllergyScreen(
 
             // 4. Tombol Aksi (Batal & Simpan)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00897B))
-                ) {
-                    Text("Batal")
-                }
+//                OutlinedButton(
+//                    onClick = onBack,
+//                    modifier = Modifier.weight(1f),
+//                    shape = RoundedCornerShape(8.dp),
+//                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00897B))
+//                ) {
+//                    Text("Batal")
+//                }
 
                 Button(
                     onClick = {
@@ -193,7 +199,7 @@ fun AddAllergyScreen(
                     if (uploadState is UiResult.Loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
                     } else {
-                        Text("Simpan Log")
+                        Text("Simpan Informasi")
                     }
                 }
             }

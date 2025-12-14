@@ -39,29 +39,29 @@ fun AppNavHost(
 
 
 
-    // 4. Gunakan LaunchedEffect untuk bereaksi terhadap perubahan state SETELAH aplikasi berjalan
-//    LaunchedEffect(isAuthenticated, nav) {
-//
-//
-//        // Jika state berubah menjadi "tidak login"...
-//        if (!isAuthenticated) {
-//            Log.d("AppNavHost", "DEBUG: User authenticated → Login")
-//            // ...paksa navigasi ke Login dan bersihkan semua back stack
-//            nav.navigate(Screen.Login.route) {
-//                popUpTo(nav.graph.id) {
-//                    inclusive = true
-//                }
-//            }
-//        }
-//        // Jika state berubah menjadi "login berhasil"...
-//        else {
-//            // ...paksa navigasi ke Home
-//            Log.d("AppNavHost", "DEBUG: User authenticated → Home")
-//            nav.navigate(Screen.Beranda.route) {
-//                popUpTo(Screen.Login.route) { inclusive = true }
-//            }
-//        }
-//    }
+//     4. Gunakan LaunchedEffect untuk bereaksi terhadap perubahan state SETELAH aplikasi berjalan
+    LaunchedEffect(isAuthenticated, nav) {
+
+
+        // Jika state berubah menjadi "tidak login"...
+        if (!isAuthenticated) {
+            Log.d("AppNavHost", "DEBUG: User authenticated → Login")
+            // ...paksa navigasi ke Login dan bersihkan semua back stack
+            nav.navigate(Screen.Login.route) {
+                popUpTo(nav.graph.id) {
+                    inclusive = true
+                }
+            }
+        }
+        // Jika state berubah menjadi "login berhasil"...
+        else {
+            // ...paksa navigasi ke Home
+            Log.d("AppNavHost", "DEBUG: User authenticated → Home")
+            nav.navigate(Screen.Beranda.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(navController = nav, startDestination = Screen.Login.route, modifier = modifier) {
         composable(Screen.Login.route) {
@@ -136,6 +136,9 @@ fun AppNavHost(
                 },
                 onNavigateToDetail = { id ->
                     nav.navigate(Screen.DetailAllergy.build(id))
+                },
+                onBack = {
+                    nav.popBackStack() // Perintah untuk kembali ke halaman sebelumnya
                 }
             )
         }
