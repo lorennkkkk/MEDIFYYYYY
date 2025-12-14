@@ -40,6 +40,9 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     val dynamicPrimaryColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFF00897B)
     val dynamicOnPrimaryColor = if (isDark) MaterialTheme.colorScheme.onPrimary else Color.White
 
+    // State untuk Search
+    var searchQuery by remember { mutableStateOf("") }
+
     // Gunakan DisposableEffect untuk mendengarkan siklus hidup (ON_RESUME)
     // Ini memastikan data di-refresh setiap kali layar ini tampil kembali
     DisposableEffect(lifecycleOwner) {
@@ -102,22 +105,19 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
 
             // --- Bagian Pencarian & Filter ---
             Column(modifier = Modifier.padding(20.dp)) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    placeholder = { Text("Cari nama obat...", color = Color.Gray) }, 
-                    leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(CardWhite, RoundedCornerShape(12.dp)), 
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = CardWhite, 
-                        unfocusedContainerColor = CardWhite,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
-                    )
+                // Menggunakan SearchBarSection dari Components.kt yang sudah mendukung tema
+                SearchBarSection(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it }
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
+            }
+
+            // Filter List berdasarkan Search Query
+            val filteredLogs = drugLogs.filter { 
+                it.drugName.contains(searchQuery, ignoreCase = true) 
             }
 
             // --- List Data ---
@@ -131,17 +131,17 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                             CircularProgressIndicator(color = dynamicPrimaryColor) 
                         }
                     }
-                } else if (drugLogs.isEmpty()) {
+                } else if (filteredLogs.isEmpty()) {
                     item {
                         Box(
                             modifier = Modifier.fillMaxWidth().padding(top = 50.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "Tidak ada riwayat", color = Color.Gray, fontStyle = FontStyle.Italic)
+                            Text(text = "Tidak ada riwayat yang cocok", color = Color.Gray, fontStyle = FontStyle.Italic)
                         }
                     }
                 } else {
-                    items(drugLogs) { log ->
+                    items(filteredLogs) { log ->
                         // Menambahkan aksi klik untuk melihat detail
                         DrugLogCard(log, onClick = {
                             navController.navigate(Screen.DetailLog.build(log.id.toString()))

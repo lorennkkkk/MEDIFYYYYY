@@ -39,25 +39,26 @@ private fun BaseLogCard(
     onClick: (() -> Unit)? = null
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        // Menggunakan warna surface agar adaptif (Putih di Light, Gelap di Dark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(2.dp), 
         modifier = Modifier.fillMaxWidth().then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
     ) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
             Box(
-                modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(BackgroundLight),
+                modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) { iconContent() }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TealDark)
+                    Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                     statusContent()
                 }
-                Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+                Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(description, fontSize = 13.sp, color = Color.Black, lineHeight = 18.sp)
+                Text(description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, lineHeight = 18.sp)
             }
         }
     }
@@ -71,21 +72,24 @@ fun HomeHeader(dynamicPrimaryColor: Color, dynamicOnPrimaryColor: Color, onBack:
         modifier = Modifier
             .fillMaxWidth()
             .background(dynamicPrimaryColor)
-            // UPDATED: Padding disesuaikan agar mirip AllergyListScreen (24.dp cukup sekali saja)
             .padding(horizontal = 24.dp, vertical = 24.dp) 
     ) {
-//        Row(
-//            // Padding dalam dihapus agar tidak double padding
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            IconButton(onClick = onBack) {
-//                Icon(
-//                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-//                    contentDescription = "Kembali",
-//                    tint = Color.White
-//                )
-//            }
-//        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Kembali",
+                    tint = dynamicOnPrimaryColor
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Daftar Alergi Obat", color = dynamicOnPrimaryColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Pantauan Kesehatan", color = dynamicOnPrimaryColor.copy(alpha = 0.8f), fontSize = 14.sp)
+            }
+        }
     }
 }
 
@@ -97,17 +101,19 @@ fun SearchBarSection(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text("Cari nama obat...", color = Color.Gray) },
-        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+        placeholder = { Text("Cari nama obat...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+        leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
         modifier = Modifier
             .fillMaxWidth()
-            .background(CardWhite, RoundedCornerShape(12.dp)),
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = CardWhite,
-            unfocusedContainerColor = CardWhite,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent
+            unfocusedBorderColor = Color.Transparent,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }
@@ -195,7 +201,7 @@ fun RecentLogsSection(
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
                 Text(
                     text = "Belum ada riwayat tercatat.",
-                    color = if (isDark) Color.LightGray else Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontStyle = FontStyle.Italic,
                     fontSize = 13.sp
                 )
@@ -286,7 +292,8 @@ fun ActionButton(
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Box(
                 modifier = Modifier.size(38.dp)
-                    .background(if (bg == TealPrimary || bg == MaterialTheme.colorScheme.primary) CardWhite.copy(0.2f) else BackgroundLight, RoundedCornerShape(10.dp)),
+                    // UPDATE: Ganti BackgroundLight dengan warna primary dengan alpha
+                    .background(if (bg == TealPrimary || bg == MaterialTheme.colorScheme.primary) CardWhite.copy(0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, null, tint = if (bg == TealPrimary || bg == MaterialTheme.colorScheme.primary) CardWhite else MaterialTheme.colorScheme.primary)
@@ -300,15 +307,15 @@ fun ActionButton(
 @Composable
 fun GreetingCard() {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 20.dp)) {
-            Text("Halo 👋", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TealDark)
+            Text("Halo 👋", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("Bagaimana kondisi alergimu hari ini?", color = Color.Gray, fontSize = 14.sp)
+            Text("Bagaimana kondisi alergimu hari ini?", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
         }
     }
 }
@@ -316,19 +323,19 @@ fun GreetingCard() {
 @Composable
 fun AlertCard() {
     Card(
-        colors = CardDefaults.cardColors(containerColor = OrangeDark.copy(alpha = 0.1f)),
+        // Menggunakan warna Error Container dari tema agar adaptif
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
         shape = RoundedCornerShape(14.dp),
         modifier = Modifier.fillMaxWidth(),
-        border = BorderStroke(1.dp, OrangeDark.copy(0.3f))
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(36.dp).background(OrangeDark.copy(0.2f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Warning, null, tint = OrangeDark, modifier = Modifier.size(20.dp))
+            Box(modifier = Modifier.size(36.dp).background(MaterialTheme.colorScheme.background.copy(alpha=0.2f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                Icon(Icons.Default.Warning, null, tint = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.size(20.dp))
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column {
-                Text("Perhatian!", color = OrangeDark, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text("Jangan lupa minum antihistamin.", color = TealDark, fontSize = 12.sp)
+                Text("Perhatian!", color = MaterialTheme.colorScheme.onErrorContainer, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text("Jangan lupa minum antihistamin.", color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 12.sp)
             }
         }
     }
