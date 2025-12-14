@@ -2,15 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.example.medifyyyyy"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.medify"
@@ -63,7 +60,6 @@ dependencies {
 
 
     // Serialization
-
     implementation(libs.kotlinx.serialization.json)
 
     //supabase
@@ -84,5 +80,9 @@ dependencies {
     //viewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation("androidx.compose.material:material-icons-extended")
+    //icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+
+    //statusBarColor
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

@@ -23,6 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
+    onNavigateFoodAllergy: () -> Unit,
+    onNavigateSertifVaksin: () -> Unit,
+    onNavigateDrugAllergy: () -> Unit,
     onNavigateJadwal: () -> Unit,
     onNavigateProfile: () -> Unit,
     onLogout: () -> Unit
@@ -57,14 +60,14 @@ fun BerandaFitur(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Sertif Vaksin */ }) {
+                    IconButton(onClick = { onNavigateSertifVaksin() } ) {
                     Icon(
                         imageVector = Icons.Default.Vaccines,
                         contentDescription = "Vaksin",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Log Alergi */ }) {
+                    IconButton(onClick = { onNavigateDrugAllergy() }) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Alergi",
@@ -106,8 +109,12 @@ fun BerandaFitur(
             )
             FeatureCard(
                 title = "Daftar Alergi Makanan",
-                onClick = onNavigateBankObat // Nanti diubah ke punya nava
+                onClick = onNavigateFoodAllergy
             )
+//            FeatureCard(
+//                title = "Daftar Alergi Obat",
+//                onClick = onNavigateDrugAllergy
+//            )
         }
     }
 }
@@ -142,13 +149,3 @@ fun FeatureCard(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BerandaFiturPreview() {
-    BerandaFitur(
-        onNavigateBankObat = {},
-        onNavigateJadwal ={},
-        onNavigateProfile={},
-        onLogout = {}
-    )
-}
