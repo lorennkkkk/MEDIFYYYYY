@@ -1,10 +1,13 @@
 package com.example.medifyyyyy.ui.common
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material3.*
@@ -24,7 +27,7 @@ import com.example.medifyyyyy.domain.model.AllergyLog
 import com.example.medifyyyyy.domain.model.DrugLog
 import com.example.medifyyyyy.ui.theme.* 
 
-// --- BASE COMPONENTS (Untuk mengurangi duplikasi kode) ---
+// --- BASE COMPONENTS ---
 
 @Composable
 private fun BaseLogCard(
@@ -38,7 +41,7 @@ private fun BaseLogCard(
     Card(
         colors = CardDefaults.cardColors(containerColor = CardWhite),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(1.dp),
+        elevation = CardDefaults.cardElevation(2.dp), 
         modifier = Modifier.fillMaxWidth().then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
     ) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
@@ -63,20 +66,50 @@ private fun BaseLogCard(
 // --- KOMPONEN HomeDrugAllergy ---
 
 @Composable
-fun HomeHeader(dynamicPrimaryColor: Color, dynamicOnPrimaryColor: Color) {
-    Box(modifier = Modifier.fillMaxWidth().background(dynamicPrimaryColor).padding(24.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {}
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Daftar Alergi Obat", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Pantauan Kesehatan", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-            }
-            Icon(Icons.Default.Notifications, null, tint = Color.White)
-            Spacer(modifier = Modifier.width(12.dp))
-            Surface(shape = CircleShape, color = Color.Gray, modifier = Modifier.size(36.dp)) {}
-        }
+fun HomeHeader(dynamicPrimaryColor: Color, dynamicOnPrimaryColor: Color, onBack: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(dynamicPrimaryColor)
+            // UPDATED: Padding disesuaikan agar mirip AllergyListScreen (24.dp cukup sekali saja)
+            .padding(horizontal = 24.dp, vertical = 24.dp) 
+    ) {
+//        Row(
+//            // Padding dalam dihapus agar tidak double padding
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            IconButton(onClick = onBack) {
+//                Icon(
+//                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                    contentDescription = "Kembali",
+//                    tint = Color.White
+//                )
+//            }
+//        }
     }
+}
+
+@Composable
+fun SearchBarSection(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        placeholder = { Text("Cari nama obat...", color = Color.Gray) },
+        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(CardWhite, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = CardWhite,
+            unfocusedContainerColor = CardWhite,
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
@@ -90,11 +123,32 @@ fun ActionButtonsRow(
     sectionTitleColor: Color
 ) {
     Column {
-        Text("Aksi Cepat", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = sectionTitleColor)
+        Text(
+            text = "Aksi Cepat",
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            color = sectionTitleColor
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ActionButton("Tambah Log", Icons.Default.Add, dynamicPrimaryColor, dynamicOnPrimaryColor, onAddClick, Modifier.weight(1f))
-            ActionButton("Riwayat", Icons.Outlined.Medication, btnHistoryBg, btnHistoryContent, onHistoryClick, Modifier.weight(1f))
+            Box(modifier = Modifier.weight(1f)) {
+                ActionButton(
+                    title = "Tambah Log",
+                    icon = Icons.Default.Add,
+                    bg = dynamicPrimaryColor,
+                    contentColor = dynamicOnPrimaryColor,
+                    onClick = onAddClick
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                ActionButton(
+                    title = "Riwayat",
+                    icon = Icons.Outlined.Medication,
+                    bg = btnHistoryBg,
+                    contentColor = btnHistoryContent,
+                    onClick = onHistoryClick
+                )
+            }
         }
     }
 }
@@ -108,31 +162,50 @@ fun RecentLogsSection(
     isDark: Boolean,
     onLogClick: (DrugLog) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Log Terbaru", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = sectionTitleColor)
-        if (logs.isNotEmpty()) {
-            Text("Lihat Semua", fontSize = 13.sp, color = dynamicPrimaryColor, fontWeight = FontWeight.SemiBold)
+    // Bungkus dalam Column agar aman di dalam LazyColumn item
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Log Terbaru",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = sectionTitleColor 
+            )
+            if (logs.isNotEmpty()) {
+                Text(
+                    text = "Lihat Semua",
+                    fontSize = 13.sp,
+                    color = dynamicPrimaryColor, 
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
-    }
-    
-    Spacer(modifier = Modifier.height(16.dp))
+        
+        Spacer(modifier = Modifier.height(16.dp))
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = dynamicPrimaryColor) 
-        }
-    } else if (logs.isEmpty()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
-            Text("Belum ada riwayat tercatat.", color = if (isDark) Color.LightGray else Color.Gray, fontStyle = FontStyle.Italic, fontSize = 13.sp)
-        }
-    } else {
-        logs.take(3).forEach { log ->
-            DrugLogCard(log, onClick = { onLogClick(log) })
-            Spacer(modifier = Modifier.height(12.dp))
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = dynamicPrimaryColor) 
+            }
+        } else if (logs.isEmpty()) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "Belum ada riwayat tercatat.",
+                    color = if (isDark) Color.LightGray else Color.Gray,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 13.sp
+                )
+            }
+        } else {
+            // Tampilkan beberapa log terbaru saja (misal: 3 log)
+            logs.take(3).forEach { log ->
+                DrugLogCard(log, onClick = { onLogClick(log) })
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -175,9 +248,14 @@ fun DrugLogCard(log: DrugLog, onClick: () -> Unit = {}) {
         onClick = onClick,
         iconContent = {
             if (log.imageUrl != null) {
-                AsyncImage(model = log.imageUrl, contentDescription = "Foto", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                AsyncImage(
+                    model = log.imageUrl, 
+                    contentDescription = "Foto", 
+                    contentScale = ContentScale.Crop, 
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
-                Icon(Icons.Default.Medication, null, tint = TealPrimary)
+                Icon(Icons.Default.Medication, null, tint = MaterialTheme.colorScheme.primary)
             }
         },
         statusContent = {
@@ -207,10 +285,11 @@ fun ActionButton(
     ) {
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Box(
-                modifier = Modifier.size(38.dp).background(if (bg == TealPrimary) CardWhite.copy(0.2f) else BackgroundLight, RoundedCornerShape(10.dp)),
+                modifier = Modifier.size(38.dp)
+                    .background(if (bg == TealPrimary || bg == MaterialTheme.colorScheme.primary) CardWhite.copy(0.2f) else BackgroundLight, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, null, tint = if (bg == TealPrimary) CardWhite else TealPrimary)
+                Icon(icon, null, tint = if (bg == TealPrimary || bg == MaterialTheme.colorScheme.primary) CardWhite else MaterialTheme.colorScheme.primary)
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(title, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = contentColor, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
@@ -219,15 +298,13 @@ fun ActionButton(
 }
 
 @Composable
-fun HeaderSimple() {
-    Column(modifier = Modifier.fillMaxWidth().background(TealPrimary).padding(24.dp)) {
-        Text("Riwayat Alergi", color = CardWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
 fun GreetingCard() {
-    Card(colors = CardDefaults.cardColors(containerColor = CardWhite), elevation = CardDefaults.cardElevation(2.dp), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(2.dp),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 20.dp)) {
             Text("Halo 👋", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TealDark)
             Spacer(modifier = Modifier.height(4.dp))
@@ -254,39 +331,6 @@ fun AlertCard() {
                 Text("Jangan lupa minum antihistamin.", color = TealDark, fontSize = 12.sp)
             }
         }
-    }
-}
-
-@Composable
-fun DailySummarySection() {
-    Column {
-        Text("Ringkasan Hari Ini", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TealDark)
-        Spacer(modifier = Modifier.height(10.dp))
-        Card(colors = CardDefaults.cardColors(containerColor = CardWhite), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Status Alergi", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TealDark)
-                    Surface(color = OrangePrimary, shape = RoundedCornerShape(50)) {
-                        Text("Sedang", color = CardWhite, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    StatItem("1", "Reaksi Hari Ini", Icons.Default.Warning, OrangePrimary)
-                    StatItem("7", "Log Minggu Ini", Icons.Default.ShowChart, TealPrimary)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StatItem(count: String, label: String, icon: ImageVector, color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.size(40.dp).background(color.copy(0.2f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = color) }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(count, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = TealDark)
-        Text(label, fontSize = 12.sp, color = Color.Gray)
     }
 }
 
