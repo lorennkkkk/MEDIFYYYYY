@@ -40,28 +40,28 @@ fun AppNavHost(
 
 
     // 4. Gunakan LaunchedEffect untuk bereaksi terhadap perubahan state SETELAH aplikasi berjalan
-//    LaunchedEffect(isAuthenticated, nav) {
-//
-//
-//        // Jika state berubah menjadi "tidak login"...
-//        if (!isAuthenticated) {
-//            Log.d("AppNavHost", "DEBUG: User authenticated → Login")
-//            // ...paksa navigasi ke Login dan bersihkan semua back stack
-//            nav.navigate(Screen.Login.route) {
-//                popUpTo(nav.graph.id) {
-//                    inclusive = true
-//                }
-//            }
-//        }
-//        // Jika state berubah menjadi "login berhasil"...
-//        else {
-//            // ...paksa navigasi ke Home
-//            Log.d("AppNavHost", "DEBUG: User authenticated → Home")
-//            nav.navigate(Screen.Beranda.route) {
-//                popUpTo(Screen.Login.route) { inclusive = true }
-//            }
-//        }
-//    }
+    LaunchedEffect(isAuthenticated, nav) {
+
+
+        // Jika state berubah menjadi "tidak login"...
+        if (!isAuthenticated) {
+            Log.d("AppNavHost", "DEBUG: User authenticated → Login")
+            // ...paksa navigasi ke Login dan bersihkan semua back stack
+            nav.navigate(Screen.Login.route) {
+                popUpTo(nav.graph.id) {
+                    inclusive = true
+                }
+            }
+        }
+        // Jika state berubah menjadi "login berhasil"...
+        else {
+            // ...paksa navigasi ke Home
+            Log.d("AppNavHost", "DEBUG: User authenticated → Home")
+            nav.navigate(Screen.Beranda.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(navController = nav, startDestination = Screen.Login.route, modifier = modifier) {
         composable(Screen.Login.route) {
@@ -89,8 +89,12 @@ fun AppNavHost(
         composable(Screen.Beranda.route){
             BerandaFitur(
                 onNavigateBankObat = { nav.navigate(Screen.Home.route) },
-                onNavigateFoodAllergy = { nav.navigate(Screen.AllergyList.route) },
+                onNavigateFoodAllergy = { nav.navigate(Screen.AllergyFoodList.route) },
                 onNavigateSertifVaksin = { nav.navigate(Screen.ListSertif.route) },
+                onNavigateDrugAllergy = {
+                    // Sementara dikosongkan dulu atau arahkan ke halaman yg sesuai
+                    // nav.navigate(Screen.AllergyList.route)
+                },
                 onLogout = {
 
                     authViewModel.logout()
@@ -125,24 +129,30 @@ fun AppNavHost(
         }
 
         //Nava
-        composable(Screen.AllergyList.route) {
+        composable(Screen.AllergyFoodList.route) {
             // Ganti tipe datanya jadi AllergyFoodViewModel
             val allergyViewModel: AllergyFoodViewModel = viewModel()
 
             AllergyListScreen(
                 viewModel = allergyViewModel,
                 onNavigateToAdd = {
-                    nav.navigate(Screen.AddAllergy.route)
+                    nav.navigate(Screen.AddAllergyFood.route)
                 },
                 onNavigateToDetail = { id ->
-                    nav.navigate(Screen.DetailAllergy.build(id))
+                    nav.navigate(Screen.DetailAllergyFood.build(id))
+                },
+
+                // --- TAMBAHKAN BARIS INI AGAR TIDAK ERROR ---
+                onBack = {
+                    nav.popBackStack()
                 }
+                // -------------------------------------------
             )
         }
 
         // ... kode sebelumnya ...
 
-        composable(route = Screen.AddAllergy.route) {
+        composable(route = Screen.AddAllergyFood.route) {
             // TAMBAHKAN BARIS INI (Membuat variabel baru khusus untuk halaman ini)
             val allergyViewModel: AllergyFoodViewModel = viewModel()
 
@@ -154,7 +164,7 @@ fun AppNavHost(
             )
         }
 
-        composable(route = Screen.DetailAllergy.route) { backStackEntry ->
+        composable(route = Screen.DetailAllergyFood.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: ""
 
             // TAMBAHKAN JUGA DI SINI
