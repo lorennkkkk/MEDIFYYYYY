@@ -93,7 +93,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
 
-            // --- Bagian Pencarian & Filter ---
+            // --- Bagian Pencarian ---
             Column(modifier = Modifier.padding(20.dp)) {
                 OutlinedTextField(
                     value = "",
@@ -111,16 +111,6 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                         unfocusedBorderColor = Color.Transparent
                     )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // Chip Aktif menggunakan TealPrimary
-                    FilterChipItem("Semua", true, TealPrimary)
-
-                    // Chip Tidak Aktif menggunakan warna netral (Gray)
-                    FilterChipItem("Ringan", false, Color.Gray) 
-                    FilterChipItem("Sedang", false, Color.Gray)
-                }
             }
 
             // --- List Data ---
