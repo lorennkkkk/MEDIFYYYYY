@@ -3,11 +3,8 @@ package com.example.medifyyyyy.ui.pages
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,7 +33,12 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background, 
         topBar = {
-            HomeHeader(dynamicPrimaryColor = dynamicPrimaryColor, dynamicOnPrimaryColor = dynamicOnPrimaryColor)
+            // Updated to pass onBack parameter
+            HomeHeader(
+                dynamicPrimaryColor = dynamicPrimaryColor, 
+                dynamicOnPrimaryColor = dynamicOnPrimaryColor,
+                onBack = { navController.popBackStack() }
+            )
         }
     ) { padding ->
         LazyColumn(
@@ -45,10 +47,12 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
                 .padding(padding)
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
+            contentPadding = PaddingValues(top = 24.dp, bottom = 24.dp)
         ) {
+            // 1. Ucapan Halo
             item { GreetingCard() }
 
+            // 2. Aksi Cepat (Tombol Tambah & Riwayat)
             item {
                 ActionButtonsRow(
                     onAddClick = { navController.navigate("add_log") },
@@ -61,8 +65,7 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
                 )
             }
 
-            item { DailySummarySection() }
-
+            // 3. Log Terbaru
             item {
                 RecentLogsSection(
                     logs = logs,
@@ -76,6 +79,7 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
                 )
             }
 
+            // 4. Alert Card (Paling Bawah)
             item { AlertCard() }
         }
     }
