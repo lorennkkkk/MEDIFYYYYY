@@ -7,6 +7,7 @@ import com.example.medifyyyyy.domain.model.AllergyFood
 import com.example.medifyyyyy.ui.common.UiResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AllergyFoodViewModel(
@@ -60,5 +61,28 @@ class AllergyFoodViewModel(
 
     suspend fun getAllergy(id: String): AllergyFood? {
         return repo.getAllergyFood(id)
+    }
+
+    // 1. Buat variabel state KHUSUS untuk menampung satu data detail
+    private val _detailState = MutableStateFlow<UiResult<AllergyFood?>>(UiResult.Loading)
+    val detailState = _detailState.asStateFlow()
+
+    // 2. Fungsi untuk memanggil getAllergy(id) yang sudah ada di repo
+    fun getDetailAllergy(id: String) {
+        viewModelScope.launch {
+            _detailState.value = UiResult.Loading // Set status jadi Loading dulu
+            try {
+                // KITA PAKAI FUNGSI YANG SUDAH ADA DI SINI
+                val result = getAllergy(id)
+
+                if (result != null) {
+                    _detailState.value = UiResult.Success(result)
+                } else {
+                    _detailState.value = UiResult.Error("Data kosong")
+                }
+            } catch (e: Exception) {
+                _detailState.value = UiResult.Error(e.message ?: "Terjadi kesalahan")
+            }
+        }
     }
 }

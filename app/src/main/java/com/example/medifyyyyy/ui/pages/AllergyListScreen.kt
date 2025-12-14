@@ -1,22 +1,16 @@
 package com.example.medifyyyyy.ui.pages
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
-import androidx.compose.foundation.lazy.items
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,11 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-
 import com.example.medifyyyyy.domain.model.AllergyFood
 import com.example.medifyyyyy.ui.common.UiResult
 import com.example.medifyyyyy.ui.viewmodel.AllergyFoodViewModel
-
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -42,7 +34,8 @@ import java.util.Locale
 fun AllergyListScreen(
     viewModel: AllergyFoodViewModel,
     onNavigateToAdd: () -> Unit,
-    onNavigateToDetail: (String) -> Unit
+    onNavigateToDetail: (String) -> Unit,
+    onBack: () -> Unit
 ) {
     // 1. Ambil Data saat halaman dibuka
     LaunchedEffect(Unit) {
@@ -55,11 +48,45 @@ fun AllergyListScreen(
     // State untuk Search Bar
     var searchQuery by remember { mutableStateOf("") }
 
+    // Warna Header
+    val headerColor = Color(0xFF347D85)
+
     Scaffold(
+        // --- [PERUBAHAN UTAMA DI SINI] ---
+        // Pindahkan Header ke dalam topBar agar menempel ke atas
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(headerColor)
+                    .statusBarsPadding() // Penting: Agar teks tidak ketabrak jam HP
+            ) {
+                Row(
+                    modifier = Modifier.padding(24.dp), // Padding ditaruh DI DALAM
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali",
+                            tint = Color.White
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Daftar Konsumsi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("Penyebab Alergi", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+            }
+        },
+        // ---------------------------------
+
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = Color(0xFF00897B),
+                containerColor = headerColor,
                 contentColor = Color.White,
                 modifier = Modifier.padding(bottom = 16.dp).fillMaxWidth(0.9f)
             ) {
@@ -71,33 +98,15 @@ fun AllergyListScreen(
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
 
+        // Content
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(padding) // Wajib pakai padding dari Scaffold
                 .fillMaxSize()
                 .background(Color(0xFFF5F5F5))
         ) {
-            // --- HEADER ---
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF00897B))
-                    .padding(24.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {}
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Daftar Alergi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text("Pantauan Kesehatan", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-                    }
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Surface(shape = CircleShape, color = Color.Gray, modifier = Modifier.size(36.dp)) {}
-                }
-            }
 
-            // --- SEARCH BAR ---
+            // --- SEARCH BAR (Tetap di sini) ---
             Box(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
                     value = searchQuery,
@@ -108,7 +117,7 @@ fun AllergyListScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = Color(0xFF00897B)
+                        focusedBorderColor = headerColor
                     )
                 )
             }
@@ -117,7 +126,7 @@ fun AllergyListScreen(
             when (val result = state) {
                 is UiResult.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF00897B))
+                        CircularProgressIndicator(color = headerColor)
                     }
                 }
                 is UiResult.Error -> {
@@ -134,7 +143,6 @@ fun AllergyListScreen(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Kalau 'items' masih merah, pastikan import androidx.compose.foundation.lazy.items ada di atas
                         items(filteredList) { item ->
                             AllergyCard(
                                 item = item,
@@ -185,7 +193,6 @@ fun AllergyCard(item: AllergyFood, onClick: () -> Unit, onDelete: () -> Unit) {
             Column(verticalArrangement = Arrangement.Bottom) {
                 Spacer(modifier = Modifier.height(40.dp))
                 Row {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray, modifier = Modifier.size(20.dp).clickable { })
                     Spacer(modifier = Modifier.width(12.dp))
                     Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Gray, modifier = Modifier.size(20.dp).clickable { onDelete() })
                 }
