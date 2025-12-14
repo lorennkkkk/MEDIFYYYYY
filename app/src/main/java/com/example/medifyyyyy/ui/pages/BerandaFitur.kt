@@ -24,6 +24,7 @@ fun BerandaFitur(
     onNavigateBankObat: () -> Unit,
     onNavigateFoodAllergy: () -> Unit,
     onNavigateSertifVaksin: () -> Unit,
+    onNavigateDrugAllergy: () -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -63,7 +64,7 @@ fun BerandaFitur(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
                     )}
-                    IconButton(onClick = { /* TODO: Navigate Log Alergi */ }) {
+                    IconButton(onClick = { onNavigateDrugAllergy() }) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Alergi",
@@ -106,6 +107,10 @@ fun BerandaFitur(
             FeatureCard(
                 title = "Daftar Alergi Makanan",
                 onClick = onNavigateFoodAllergy
+            )
+            FeatureCard(
+                title = "Log Efek Samping",
+                onClick = onNavigateDrugAllergy
             )
         }
     }

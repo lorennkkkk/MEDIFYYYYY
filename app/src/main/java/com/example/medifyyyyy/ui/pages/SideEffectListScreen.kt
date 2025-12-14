@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medifyyyyy.ui.common.*
-import com.example.medifyyyyy.ui.theme.* // Mengimpor warna baru
+import com.example.medifyyyyy.ui.theme.* 
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
 @Composable
@@ -28,13 +28,18 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
     val drugLogs by viewModel.drugLogs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    // Refresh data saat layar ditampilkan kembali
+    LaunchedEffect(Unit) {
+        viewModel.fetchData()
+    }
+
     Scaffold(
-        containerColor = BackgroundLight, // ✅ Ganti SoftIce
+        containerColor = MaterialTheme.colorScheme.background, 
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(TealPrimary) // ✅ Ganti TealMedical
+                    .background(TealPrimary) 
                     .padding(20.dp)
             ) {
                 Row(
@@ -43,13 +48,13 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = CardWhite) // ✅ Ganti PureWhite
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = CardWhite) 
                     }
                     Text(
                         text = "Catatan Efek Samping",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CardWhite // ✅ Ganti PureWhite
+                        color = CardWhite 
                     )
                     Spacer(modifier = Modifier.width(48.dp))
                 }
@@ -61,8 +66,8 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate("add_log") },
-                containerColor = TealPrimary, // ✅ Ganti TealMedical
-                contentColor = CardWhite,     // ✅ Ganti PureWhite
+                containerColor = TealPrimary, 
+                contentColor = CardWhite,     
                 shape = RoundedCornerShape(50),
                 modifier = Modifier.padding(bottom = 10.dp)
             ) {
@@ -79,14 +84,14 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
-                    placeholder = { Text("Cari nama obat...", color = Color.Gray) }, // ✅ Ganti TextGray
+                    placeholder = { Text("Cari nama obat...", color = Color.Gray) }, 
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(CardWhite, RoundedCornerShape(12.dp)), // ✅ Ganti PureWhite
+                        .background(CardWhite, RoundedCornerShape(12.dp)), 
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = CardWhite, // ✅ Ganti PureWhite
+                        focusedContainerColor = CardWhite, 
                         unfocusedContainerColor = CardWhite,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent
@@ -99,7 +104,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                     FilterChipItem("Semua", true, TealPrimary)
 
                     // Chip Tidak Aktif menggunakan warna netral (Gray)
-                    FilterChipItem("Ringan", false, Color.Gray) // ✅ Ganti LightCyanGray
+                    FilterChipItem("Ringan", false, Color.Gray) 
                     FilterChipItem("Sedang", false, Color.Gray)
                 }
             }
@@ -112,7 +117,7 @@ fun SideEffectListScreen(navController: NavController, viewModel: LogViewModel) 
                 if (isLoading) {
                     item {
                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = TealPrimary) // ✅ Ganti TealMedical
+                            CircularProgressIndicator(color = TealPrimary) 
                         }
                     }
                 } else if (drugLogs.isEmpty()) {

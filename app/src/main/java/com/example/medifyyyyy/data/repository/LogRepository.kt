@@ -54,4 +54,26 @@ class LogRepository {
             emit(emptyList())
         }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun addDrugLog(log: DrugLog) {
+        try {
+            // Gunakan Map untuk insert agar ID (null) tidak ikut terkirim
+            // Supabase akan generate ID otomatis
+            val logMap = mapOf(
+                "drug_name" to log.drugName,
+                "dosage" to log.dosage,
+                "time" to log.time,
+                "status" to log.status,
+                "description" to log.description,
+                "image_count" to log.imageCount,
+                "has_image" to log.hasImage
+            )
+            
+            supabase.from("drug_logs").insert(logMap)
+            Log.d("LogRepo", "Success insert drug log")
+        } catch (e: Exception) {
+            Log.e("LogRepo", "Error insert drug log: ${e.message}")
+            throw e
+        }
+    }
 }
