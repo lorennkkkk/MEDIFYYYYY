@@ -1,63 +1,176 @@
 package com.example.medifyyyyy.ui.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.medifyyyyy.ui.common.UiResult
+import androidx.compose.ui.unit.sp
 import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 
 
 @Composable
 fun LoginScreen(
-    viewModel: AuthViewModel,
-    onNavigateRegister: () -> Unit,
+    vm: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    onSignUpClick: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {}
+) {
 
-    ) {
-    val state by viewModel.authState.collectAsState()
+    val teal = MaterialTheme.colorScheme.primary
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Column(Modifier.padding(24.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.padding(24.dp)
-                    .size(120.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        shape = CircleShape
-                    )
-            ) {
+    val loading by vm.loading.collectAsState()
+    val errorMessage by vm.errorMessage.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(teal),
+        contentAlignment = Alignment.TopCenter
+    ) {
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 40.dp)
+        ) {
+
+            Icon(
+                Icons.Default.Favorite,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(48.dp)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text(
-                    text = "Medify",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    text = "Welcome Back !",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Text(
+                    text = "Medify will help you.",
+                    fontSize = 16.sp,
+                    color = Color.White
                 )
             }
-            Text("Login", style = MaterialTheme.typography.headlineMedium)
-            OutlinedTextField(email, { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(password, { password = it }, label = { Text("Password") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
-            Box(
-                modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                contentAlignment = Alignment.Center
+
+            Spacer(modifier = Modifier.height(35.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Text(
+                    text = "Sign In",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(25.dp)) {
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        placeholder = { Text("Username") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(30.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = teal,
+                            unfocusedBorderColor = teal
+                        )
+                    )
+
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(30.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = teal,
+                            unfocusedBorderColor = teal
+                        )
+                    )
+                }
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(35.dp))
+
                 Button(
-                    onClick = { viewModel.login(email, password) },
-                    enabled = state !is UiResult.Loading
+                    onClick = {
+                        vm.login(email, password) {
+                            onLoginSuccess()
+                        }
+                    },
+                    enabled = !loading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = teal)
                 ) {
-                    Text(if (state is UiResult.Loading) "Loading..." else "Login")
+                    Text(
+                        if (loading) "Signing In..." else "Sign In",
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
                 }
             }
-            TextButton(onClick = onNavigateRegister) { Text("Belum punya akun? Register", color = MaterialTheme.colorScheme.secondary) }
-            if (state is UiResult.Error) Text((state as UiResult.Error).message, color = MaterialTheme.colorScheme.error)
 
+            Spacer(modifier = Modifier.height(12.dp))
+            Row {
+                Text("Belum punya akun? ", color = Color.White, fontSize = 14.sp)
+
+                Text(
+                    text = "Sign Up Here",
+                    color = Color(0xFFFFB84D),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { onSignUpClick() }
+                )
+            }
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLogin() {
+    LoginScreen()
 }
