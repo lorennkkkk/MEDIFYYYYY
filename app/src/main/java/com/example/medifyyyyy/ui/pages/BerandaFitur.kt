@@ -108,10 +108,10 @@ fun BerandaFitur(
                 title = "Daftar Alergi Makanan",
                 onClick = onNavigateFoodAllergy
             )
-            FeatureCard(
-                title = "Log Efek Samping",
-                onClick = onNavigateDrugAllergy
-            )
+//            FeatureCard(
+//                title = "Daftar Alergi Obat",
+//                onClick = onNavigateDrugAllergy
+//            )
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Medication
@@ -23,51 +24,60 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medifyyyyy.ui.common.*
-import com.example.medifyyyyy.ui.nav.Screen 
-import com.example.medifyyyyy.ui.theme.* 
+import com.example.medifyyyyy.ui.nav.Screen
+import com.example.medifyyyyy.ui.theme.*
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
     val logs by viewModel.drugLogs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // --- Konfigurasi Dark Mode ---
+    // --- Konfigurasi Dark Mode (Untuk Body) ---
     val isDark = isSystemInDarkTheme()
-    
-    // Warna Dinamis (Sesuai AddLogScreen & DetailLogScreen)
-    // Light: Teal (0xFF00897B), Dark: Primary Theme Color
+
     val dynamicPrimaryColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFF00897B)
     val dynamicOnPrimaryColor = if (isDark) MaterialTheme.colorScheme.onPrimary else Color.White
-    
+
     val sectionTitleColor = if (isDark) MaterialTheme.colorScheme.onBackground else TealDark
-    
-    // Tombol Riwayat (Surface/Secondary)
+
     val btnHistoryBg = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color.White
     val btnHistoryContent = if (isDark) MaterialTheme.colorScheme.onSurfaceVariant else TealDark
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background, 
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(dynamicPrimaryColor)
-                    .padding(24.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Profile Icon placeholder putih
-                    Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {}
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Daftar Alergi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text("Pantauan Kesehatan", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+            // --- HEADER DIPERBAIKI MENGIKUTI BankObatScreen ---
+            TopAppBar(
+                title = {
+                    Text(
+                        "Daftar Alergi Obat",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
                     }
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Surface(shape = CircleShape, color = if (isDark) Color.DarkGray else Color.Gray, modifier = Modifier.size(36.dp)) {}
+                },
+                actions = {
+                    // Icon notifikasi tetap dipertahankan tapi dipindah ke slot actions
+                    IconButton(onClick = { /* Handle notification click */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
-            }
+            )
+            // --------------------------------------------------
         }
     ) { padding ->
         LazyColumn(
@@ -126,13 +136,13 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
                         text = "Log Terbaru",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = sectionTitleColor 
+                        color = sectionTitleColor
                     )
                     if (logs.isNotEmpty()) {
                         Text(
                             text = "Lihat Semua",
                             fontSize = 13.sp,
-                            color = dynamicPrimaryColor, 
+                            color = dynamicPrimaryColor,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -142,7 +152,7 @@ fun HomeDrugAllergy(navController: NavController, viewModel: LogViewModel) {
             if (isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = dynamicPrimaryColor) 
+                        CircularProgressIndicator(color = dynamicPrimaryColor)
                     }
                 }
             } else if (logs.isEmpty()) {
