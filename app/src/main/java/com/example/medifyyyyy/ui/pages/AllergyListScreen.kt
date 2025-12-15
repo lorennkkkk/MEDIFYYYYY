@@ -44,25 +44,19 @@ fun AllergyListScreen(
 
     // 2. Baca status data
     val state by viewModel.allergyListState.collectAsState()
-
-    // State untuk Search Bar
     var searchQuery by remember { mutableStateOf("") }
-
-    // Warna Header
     val headerColor = Color(0xFF347D85)
 
     Scaffold(
-        // --- [PERUBAHAN UTAMA DI SINI] ---
-        // Pindahkan Header ke dalam topBar agar menempel ke atas
         topBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(headerColor)
-                    .statusBarsPadding() // Penting: Agar teks tidak ketabrak jam HP
+                    .statusBarsPadding()
             ) {
                 Row(
-                    modifier = Modifier.padding(24.dp), // Padding ditaruh DI DALAM
+                    modifier = Modifier.padding(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBack) {
@@ -81,7 +75,6 @@ fun AllergyListScreen(
                 }
             }
         },
-        // ---------------------------------
 
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -101,7 +94,7 @@ fun AllergyListScreen(
         // Content
         Column(
             modifier = Modifier
-                .padding(padding) // Wajib pakai padding dari Scaffold
+                .padding(padding)
                 .fillMaxSize()
                 .background(Color(0xFFF5F5F5))
         ) {

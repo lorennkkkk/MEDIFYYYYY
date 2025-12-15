@@ -29,6 +29,7 @@ import com.example.medifyyyyy.ui.viewmodel.AuthViewModel
 import com.example.medifyyyyy.ui.viewmodel.ProfileViewModel
 import com.example.medifyyyyy.ui.pages.SideEffectListScreen
 import com.example.medifyyyyy.ui.pages.AddLogScreen
+import com.example.medifyyyyy.ui.pages.DetailAllergyScreen
 import com.example.medifyyyyy.ui.viewmodel.BankObatViewModel
 import com.example.medifyyyyy.ui.viewmodel.LogViewModel
 
@@ -160,9 +161,7 @@ fun AppNavHost(
 
         //Nava
         composable(Screen.AllergyFoodList.route) {
-            // Ganti tipe datanya jadi AllergyFoodViewModel
             val allergyViewModel: AllergyFoodViewModel = viewModel()
-
             AllergyListScreen(
                 viewModel = allergyViewModel,
                 onNavigateToAdd = {
@@ -171,24 +170,29 @@ fun AppNavHost(
                 onNavigateToDetail = { id ->
                     nav.navigate(Screen.DetailAllergyFood.build(id))
                 },
-
-                // --- TAMBAHKAN BARIS INI AGAR TIDAK ERROR ---
                 onBack = {
                     nav.popBackStack()
                 }
-                // -------------------------------------------
             )
         }
 
         composable(Screen.AddAllergyFood.route) {
-            // Kita buat ViewModel baru atau pakai yang ada
             val allergyViewModel: AllergyFoodViewModel = viewModel()
-
             AddAllergyScreen(
                 viewModel = allergyViewModel,
                 onBack = {
                     nav.popBackStack()
                 }
+            )
+        }
+
+        composable(Screen.DetailAllergyFood.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+            val allergyViewModel: AllergyFoodViewModel = viewModel()
+            DetailAllergyScreen(
+                allergyId = id,
+                viewModel = allergyViewModel,
+                onBack = { nav.popBackStack() }
             )
         }
 
