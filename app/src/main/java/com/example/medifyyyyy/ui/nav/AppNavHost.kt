@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.medifyyyyy.ui.pages.AddAllergyScreen
 import com.example.medifyyyyy.ui.pages.AddBankObatScreen
 import com.example.medifyyyyy.ui.pages.AddVaksinScreen
 import com.example.medifyyyyy.ui.pages.AllergyListScreen
@@ -176,6 +177,18 @@ fun AppNavHost(
                     nav.popBackStack()
                 }
                 // -------------------------------------------
+            )
+        }
+
+        composable(Screen.AddAllergyFood.route) {
+            // Kita buat ViewModel baru atau pakai yang ada
+            val allergyViewModel: AllergyFoodViewModel = viewModel()
+
+            AddAllergyScreen(
+                viewModel = allergyViewModel,
+                onBack = {
+                    nav.popBackStack()
+                }
             )
         }
 
