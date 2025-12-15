@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,32 +36,23 @@ fun AllergyListScreen(
     onNavigateToDetail: (String) -> Unit,
     onBack: () -> Unit
 ) {
-    // 1. Ambil Data saat halaman dibuka
+
     LaunchedEffect(Unit) {
         viewModel.loadAllergies()
     }
-
-    // 2. Baca status data
     val state by viewModel.allergyListState.collectAsState()
-
-    // State untuk Search Bar
-    var searchQuery by remember { mutableStateOf("") }
-
-    // Warna Header
     val headerColor = Color(0xFF347D85)
 
     Scaffold(
-        // --- [PERUBAHAN UTAMA DI SINI] ---
-        // Pindahkan Header ke dalam topBar agar menempel ke atas
         topBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(headerColor)
-                    .statusBarsPadding() // Penting: Agar teks tidak ketabrak jam HP
+                    .statusBarsPadding()
             ) {
                 Row(
-                    modifier = Modifier.padding(24.dp), // Padding ditaruh DI DALAM
+                    modifier = Modifier.padding(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBack) {
@@ -81,7 +71,6 @@ fun AllergyListScreen(
                 }
             }
         },
-        // ---------------------------------
 
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -101,28 +90,12 @@ fun AllergyListScreen(
         // Content
         Column(
             modifier = Modifier
-                .padding(padding) // Wajib pakai padding dari Scaffold
+                .padding(padding)
                 .fillMaxSize()
                 .background(Color(0xFFF5F5F5))
         ) {
 
-            // --- SEARCH BAR (Tetap di sini) ---
-            Box(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(8.dp)),
-                    placeholder = { Text("Cari nama makanan...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = headerColor
-                    )
-                )
-            }
-
-            // --- LIST KARTU ---
+            // LIST KARTU
             when (val result = state) {
                 is UiResult.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -135,15 +108,11 @@ fun AllergyListScreen(
                     }
                 }
                 is UiResult.Success -> {
-                    val filteredList = result.data.filter {
-                        it.name.contains(searchQuery, ignoreCase = true)
-                    }
-
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(filteredList) { item ->
+                        items(result.data) { item ->
                             AllergyCard(
                                 item = item,
                                 onClick = { onNavigateToDetail(item.id) },

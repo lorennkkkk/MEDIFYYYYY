@@ -32,15 +32,12 @@ fun DetailAllergyScreen(
     viewModel: AllergyFoodViewModel,
     onBack: () -> Unit
 ) {
-    // 1. Ambil State dari ViewModel
     val state by viewModel.detailState.collectAsState()
 
-    // 2. Trigger ambil data saat halaman dibuka
     LaunchedEffect(key1 = allergyId) {
         viewModel.getDetailAllergy(allergyId)
     }
 
-    // Warna Tema sesuai gambar (Teal Gelap)
     val themeColor = Color(0xFF347D85)
     val backgroundColor = Color(0xFFF2F5F8) // Abu-abu muda untuk background layar
 
@@ -48,7 +45,6 @@ fun DetailAllergyScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    // Judul di TopBar akan mengikuti data nama makanan jika sudah ada
                     val titleText = if (state is UiResult.Success) {
                         (state as UiResult.Success).data?.name ?: "Detail Alergi"
                     } else "Detail Alergi"
@@ -73,7 +69,6 @@ fun DetailAllergyScreen(
                 )
             )
         },
-        // Hapus bottomBar sesuai permintaan
         bottomBar = {}
     ) { padding ->
 
@@ -81,7 +76,7 @@ fun DetailAllergyScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(backgroundColor) // Background abu-abu seluruh layar
+                .background(backgroundColor)
         ) {
             when (state) {
                 is UiResult.Loading -> {
@@ -91,7 +86,6 @@ fun DetailAllergyScreen(
                     )
                 }
                 is UiResult.Error -> {
-                    // Menampilkan pesan error (mengambil pesan string)
                     val errorMsg = (state as UiResult.Error).message
                     Text(
                         text = errorMsg,
@@ -102,7 +96,6 @@ fun DetailAllergyScreen(
                 is UiResult.Success -> {
                     val item = (state as UiResult.Success).data
                     if (item != null) {
-                        // TAMPILKAN KONTEN UTAMA
                         DetailContent(item = item)
                     } else {
                         Text("Data tidak ditemukan", modifier = Modifier.align(Alignment.Center))
@@ -121,7 +114,7 @@ fun DetailContent(item: AllergyFood) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp) // Jarak antara kartu dengan pinggir layar
     ) {
-        // --- CARD PUTIH ---
+        // CARD
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -129,7 +122,7 @@ fun DetailContent(item: AllergyFood) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Column {
-                // 1. GAMBAR (Full Width di atas Card)
+                // GAMBAR
                 if (!item.imageUrl.isNullOrEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(item.imageUrl),
@@ -137,10 +130,10 @@ fun DetailContent(item: AllergyFood) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp) // Tinggi gambar disesuaikan
+                            .height(220.dp)
                     )
                 } else {
-                    // Placeholder jika tidak ada gambar
+                    // Placeholder no gambar
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -152,7 +145,7 @@ fun DetailContent(item: AllergyFood) {
                     }
                 }
 
-                // 2. KONTEN TEKS (Padding di dalam Card)
+                // KONTEN
                 Column(modifier = Modifier.padding(20.dp)) {
                     // Judul Makanan
                     Text(
@@ -164,19 +157,16 @@ fun DetailContent(item: AllergyFood) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Deskripsi (Line height diatur agar enak dibaca)
                     Text(
                         text = item.description,
                         fontSize = 15.sp,
-                        color = Color(0xFF4A4A4A), // Abu-abu gelap untuk teks bacaan
-                        lineHeight = 24.sp, // Jarak antar baris biar tidak rapat
-                        textAlign = TextAlign.Justify // Rata kanan kiri (opsional)
+                        color = Color(0xFF4A4A4A),
+                        lineHeight = 24.sp,
+                        textAlign = TextAlign.Justify
                     )
                 }
             }
         }
-
-        // Spacer bawah agar bisa discroll mentok
         Spacer(modifier = Modifier.height(30.dp))
     }
 }

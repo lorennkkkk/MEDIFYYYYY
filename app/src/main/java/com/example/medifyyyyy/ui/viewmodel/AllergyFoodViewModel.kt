@@ -63,18 +63,16 @@ class AllergyFoodViewModel(
         return repo.getAllergyFood(id)
     }
 
-    // 1. Buat variabel state KHUSUS untuk menampung satu data detail
+    // var state 1 data detail
     private val _detailState = MutableStateFlow<UiResult<AllergyFood?>>(UiResult.Loading)
     val detailState = _detailState.asStateFlow()
 
-    // 2. Fungsi untuk memanggil getAllergy(id) yang sudah ada di repo
+    // get allergy
     fun getDetailAllergy(id: String) {
         viewModelScope.launch {
-            _detailState.value = UiResult.Loading // Set status jadi Loading dulu
+            _detailState.value = UiResult.Loading
             try {
-                // KITA PAKAI FUNGSI YANG SUDAH ADA DI SINI
                 val result = getAllergy(id)
-
                 if (result != null) {
                     _detailState.value = UiResult.Success(result)
                 } else {
