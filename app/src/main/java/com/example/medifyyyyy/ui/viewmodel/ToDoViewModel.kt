@@ -31,7 +31,7 @@ class TodoViewModel : ViewModel() {
 
         viewModelScope.launch {
             repo.addTodo(userId, title, time)
-            loadTodos() // refresh list
+            loadTodos()
         }
     }
 

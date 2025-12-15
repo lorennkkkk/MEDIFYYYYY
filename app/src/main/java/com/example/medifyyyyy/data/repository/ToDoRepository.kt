@@ -29,9 +29,14 @@ class TodoRepository {
 
     suspend fun addTodo(userId: String, title: String, time: String) {
         postgrest["todo"].insert(
-            Todo(user_id = userId, title = title, time = time)
+            mapOf(
+                "user_id" to userId,
+                "title" to title,
+                "time" to time
+            )
         )
     }
+
 
     suspend fun deleteTodo(id: Long) {
         postgrest["todo"].delete {
